@@ -1,5 +1,95 @@
 # CHANGELOG Quench
 
+## [UNRELEASED] — 2026-08-23
+
+### Added
+
+- **Assembly numeric overflow protection** – `parseNumber` now detects and rejects overflow conditions, preventing silent wraparound for constants exceeding 64-bit range.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **Negative immediate support in x86 assembler** – `parseImmediate` handles negative integer literals (e.g., `add rax, -1`) with two's complement encoding and 32-bit signed range validation.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **Enhanced hash cache metadata** – cache now stores file size and modification time alongside BLAKE3 hash for more precise invalidation decisions.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **Comprehensive unit tests for builder** – new test files covering hash cache, memory limiter, and source hashing subsystems.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+### Changed
+
+- **`internal/builder/hash_cache.go`** – upgraded serialization format to `FZHC2` magic to persist extended metadata (size + mtime).  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/limiter.go`** – replaced `bytes.Reader` and `strings.Fields` with a custom zero-allocation parser for `/proc/meminfo`, eliminating GC pressure during memory queries.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/source_hash.go`** – parallelized hash computation using a worker pool with early error propagation and atomic stop flag; metadata check now skips hashing when cache is fresh.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/graph.go`** – optimized `topoSort` to avoid slice reallocation by using a queue head index; fixed `runDAGBuild` to prevent duplicate node scheduling with proper pending state propagation.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/builder.go`** – integrated `hashCacheEntry` metadata and fixed parallel build task scheduling using direct slice element passing.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/drivers/chan/mpsc.go`** – replaced lock-free implementation with mutex-based ring buffer with dynamic growth, eliminating blocking issues under high contention.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/io_uring/io_uring_linux.go`** – added `validateResult` helper to verify completion result length, returning `io.ErrUnexpectedEOF` for short reads and `io.ErrShortWrite` for short writes.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/linker/flat_layout.go`** – replaced unsafe `Align4` with `align4Checked` to prevent integer overflow when section addresses approach the 4GB boundary; all calculations now use `uint64`.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/linker/parallel.go`** – fixed data race by passing slice element (`&targets[i]`) directly to task argument instead of copying via `targetCopy`/`targetPtr`.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+### Fixed
+
+- **`fo` pool nil pointer** – added guards in `popLocal()`, `steal()`, `Submit()`, and `reserveBatch()`.  
+  ([0b571a6](https://github.com/qecko-labs/Quench/commit/0b571a6))
+
+- **`chan.MPSC` nil check** – added `q == nil` guard in `Dequeue()` to prevent segmentation faults.  
+  ([1884b5b](https://github.com/qecko-labs/Quench/commit/1884b5b))
+
+- **`fo.publicQ` initialization** – ensured public queue is created and checked before use in `steal()`.  
+  ([30a5548](https://github.com/qecko-labs/Quench/commit/30a5548))
+
+### Performance
+
+- `fo.Submit` benchmark now passes with **0 allocs/op**.  
+  ([d7a4098](https://github.com/qecko-labs/Quench/commit/d7a4098))
+
+- `BenchmarkCopyFileHot` remains **0 allocs/op**.  
+  ([3d24b03](https://github.com/qecko-labs/Quench/commit/3d24b03))
+
+- Scheduler benchmarks show **0 allocs/op**.  
+  ([132469f](https://github.com/qecko-labs/Quench/commit/132469f))
+
+### Testing
+
+- **`internal/builder/hash_cache_test.go`** – tests for serialization/deserialization and metadata persistence.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/limiter_test.go`** – tests for memory info parsing under various `/proc/meminfo` line formats.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/source_hash_test.go`** – tests for parallel hash computation, cache integration, and error handling.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/builder/graph_test.go`** – added `TestTopoSortWideGraph` and `TestRunDAGBuildWithoutPool`.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/io_uring/io_uring_test.go`** – added `TestValidateResult` for completion validation.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/linker/flat_layout_test.go`** – added tests for address overflow and unrepresentable sections.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
+- **`internal/drivers/chan/mpsc_test.go`** – added `TestMPSCDoesNotBlockWhenFull` and `TestMPSCSteadyStateDoesNotAllocate`.  
+  ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
+
 ## [UNRELEASED] — 2026-08-03
 
 ### Added
@@ -831,4 +921,13 @@ efa2182 perf(builder): replace RWMutex with spinlock in action_cache
 1884b5b fix(chan): add nil checks in MPSC.Dequeue
 30a5548 fix(fo): add publicQ nil check in steal() and ensure init
 0b571a6 fix(fo): add nil checks in popLocal, steal, Submit and reserveBatch
+5c6bdc2 perf(builder): replace channel with fo pool in cache
+3d24b03 perf(linker): add splice and fallback for file copy
+7e7ffb4 perf(linker): use fo pool for parallel linking
+1f33dec perf(linker): use MPSC queue and fo pool for symbol parsing
+85be3b8 chore: ignore fo.test and linker.test binaries
+1884b5b fix(chan): add nil checks in MPSC.Dequeue
+30a5548 fix(fo): add publicQ nil check in steal() and ensure init
+0b571a6 fix(fo): add nil checks in popLocal, steal, Submit and reserveBatch
+34c76c0 linker: fix data race in parallel LinkMultipleParallel by passing slice element directly
 ```
