@@ -887,7 +887,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 								envMap[k] = v
 							}
 						}
-						if localCfg != nil && len(localCfg.DepBuild.Environment) > 0 {
+						if len(localCfg.DepBuild.Environment) > 0 {
 							for k, v := range localCfg.DepBuild.Environment {
 								envMap[k] = v
 							}
@@ -965,7 +965,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 	cacheDir := joinPath(filepath.Dir(outBin), ".qh_cache")
 
 	effectiveCache := determineCacheMode(cfg, noCache)
-	var hashCache map[string][32]byte
+	var hashCache map[string]hashCacheEntry
 
 	if cacheDir != "" {
 
@@ -987,7 +987,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 		_ = PreloadCache(ctx, cacheDir)
 	}
 
-	if err := refreshSourceHashes(dirs); err != nil {
+	if err := refreshSourceHashesWithCache(dirs, hashCache); err != nil {
 		return nil, errors.New("failed to refresh source hashes: " + err.Error())
 	}
 
@@ -1067,7 +1067,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 	buildOne := func(p pair) error {
 		needAssemble := true
 		if effectiveCache != cacheOff && hashCache != nil {
-			if oldHash, ok := hashCache[p.src]; ok && oldHash == sourceHashes[p.src] {
+			if oldHash, ok := hashCache[p.src]; ok && oldHash.hash == sourceHashes[p.src].hash && oldHash.size == sourceHashes[p.src].size && oldHash.modTime == sourceHashes[p.src].modTime {
 				if effectiveCache == cacheRAM {
 					restored, err := restoreRAMCache(p.src, p.obj, debug, mode)
 					if err != nil {
@@ -1161,10 +1161,6 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 		errQ := ch.NewMPSC(len(pairs))
 		var wg sync.WaitGroup
 		for i := range pairs {
-			pairItem := pairs[i]
-			pairCopy := pairItem
-			pairPtr := new(pair)
-			*pairPtr = pairCopy
 			task := fo.Task{Fn: func(arg unsafe.Pointer) error {
 				defer wg.Done()
 				pairArg := (*pair)(arg)
@@ -1173,7 +1169,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 					return err
 				}
 				return nil
-			}, Arg: unsafe.Pointer(pairPtr)}
+			}, Arg: unsafe.Pointer(&pairs[i])}
 			wg.Add(1)
 			if !pool.Submit(task) {
 				if err := task.Run(); err != nil {

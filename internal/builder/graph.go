@@ -168,9 +168,10 @@ func topoSort(graph [][]int) ([]int, error) {
 		topoOrderPool.Put(orderPtr)
 		return nil, errDependencyCycle
 	}
-	for len(scratch.queue) > 0 {
-		node := scratch.queue[0]
-		scratch.queue = scratch.queue[1:]
+	queueHead := 0
+	for queueHead < len(scratch.queue) {
+		node := scratch.queue[queueHead]
+		queueHead++
 		order = append(order, node)
 		start := scratch.adjIndex[node]
 		end := scratch.adjIndex[node+1]
@@ -238,12 +239,17 @@ func runDAGBuild(pool *fo.Pool, pairs []pair, graph [][]int, buildOne func(pair)
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var buildErr error
+	scheduled := make([]bool, n)
 
 	var schedule func(int)
 	schedule = func(idx int) {
-		pairCopy := pairs[idx]
-		pairPtr := new(pair)
-		*pairPtr = pairCopy
+		mu.Lock()
+		if scheduled[idx] {
+			mu.Unlock()
+			return
+		}
+		scheduled[idx] = true
+		mu.Unlock()
 		wg.Add(1)
 		nodeIdx := idx
 		task := fo.Task{Fn: func(arg unsafe.Pointer) error {
@@ -262,13 +268,24 @@ func runDAGBuild(pool *fo.Pool, pairs []pair, graph [][]int, buildOne func(pair)
 				for _, child := range dependents[nodeIdx] {
 					pending[child]--
 					if pending[child] == 0 {
-						schedule(child)
+						pending[child] = -1
 					}
 				}
 			}
 			mu.Unlock()
+			for _, child := range dependents[nodeIdx] {
+				mu.Lock()
+				ready := pending[child] == -1
+				if ready {
+					pending[child] = -2
+				}
+				mu.Unlock()
+				if ready {
+					schedule(child)
+				}
+			}
 			return nil
-		}, Arg: unsafe.Pointer(pairPtr)}
+		}, Arg: unsafe.Pointer(&pairs[idx])}
 		if pool == nil || !pool.Submit(task) {
 			if err := task.Run(); err != nil {
 				mu.Lock()

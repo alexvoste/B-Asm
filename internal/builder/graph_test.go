@@ -71,6 +71,55 @@ func TestTopoSortBranchedGraph(t *testing.T) {
 	}
 }
 
+func TestTopoSortWideGraph(t *testing.T) {
+	const width = 128
+	graph := make([][]int, width+1)
+	for node := 1; node <= width; node++ {
+		graph[node] = []int{0}
+	}
+	order, err := topoSort(graph)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(order) != width+1 || order[0] != 0 {
+		t.Fatalf("unexpected order length or root: %v", order[:min(len(order), 3)])
+	}
+	for index := 1; index <= width; index++ {
+		if order[index] != index {
+			t.Fatalf("order[%d] = %d, want %d", index, order[index], index)
+		}
+	}
+}
+
+func TestTopoSortSteadyStateDoesNotAllocate(t *testing.T) {
+	graph := [][]int{{}, {0}, {0}, {1, 2}}
+	allocs := testing.AllocsPerRun(1000, func() {
+		order, err := topoSort(graph)
+		if err != nil || len(order) != len(graph) {
+			t.Fatalf("topoSort() = (%v, %v)", order, err)
+		}
+	})
+	if allocs > 4 {
+		t.Fatalf("topoSort allocations = %g, want at most 4", allocs)
+	}
+}
+
+func TestRunDAGBuildWithoutPool(t *testing.T) {
+	pairs := []pair{{src: "a"}, {src: "b"}, {src: "c"}}
+	graph := [][]int{{}, {0}, {1}}
+	var built []string
+	err := runDAGBuild(nil, pairs, graph, func(item pair) error {
+		built = append(built, item.src)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(built, []string{"a", "b", "c"}) {
+		t.Fatalf("built order = %v, want [a b c]", built)
+	}
+}
+
 func TestBuildDependencyGraphWithDepFile(t *testing.T) {
 	dir := t.TempDir()
 	srcA := filepath.Join(dir, "a.c")

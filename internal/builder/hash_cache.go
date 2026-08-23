@@ -24,7 +24,15 @@ import (
 	"path/filepath"
 )
 
-func loadHashCache(cacheDir string) (map[string][32]byte, error) {
+type hashCacheEntry struct {
+	hash    [32]byte
+	size    int64
+	modTime int64
+}
+
+const hashCacheMagic = "FZHC2"
+
+func loadHashCache(cacheDir string) (map[string]hashCacheEntry, error) {
 	if cacheDir == "" {
 		return nil, nil
 	}
@@ -37,9 +45,17 @@ func loadHashCache(cacheDir string) (map[string][32]byte, error) {
 		return nil, err
 	}
 	defer f.Close()
-	m := make(map[string][32]byte)
+	m := make(map[string]hashCacheEntry)
+	header := make([]byte, len(hashCacheMagic))
+	if _, err := io.ReadFull(f, header); err != nil {
+		return nil, err
+	}
+	if string(header) != hashCacheMagic {
+		return nil, os.ErrInvalid
+	}
 	var lenBuf [2]byte
 	var hashBuf [32]byte
+	var metaBuf [16]byte
 	for {
 		_, err := io.ReadFull(f, lenBuf[:])
 		if err == io.EOF {
@@ -53,15 +69,22 @@ func loadHashCache(cacheDir string) (map[string][32]byte, error) {
 		if _, err := io.ReadFull(f, pathBytes); err != nil {
 			return nil, err
 		}
+		if _, err := io.ReadFull(f, metaBuf[:]); err != nil {
+			return nil, err
+		}
 		if _, err := io.ReadFull(f, hashBuf[:]); err != nil {
 			return nil, err
 		}
-		m[string(pathBytes)] = hashBuf
+		m[string(pathBytes)] = hashCacheEntry{
+			hash:    hashBuf,
+			size:    int64(binary.LittleEndian.Uint64(metaBuf[:8])),
+			modTime: int64(binary.LittleEndian.Uint64(metaBuf[8:])),
+		}
 	}
 	return m, nil
 }
 
-func saveHashCache(cacheDir string, m map[string][32]byte) error {
+func saveHashCache(cacheDir string, m map[string]hashCacheEntry) error {
 	if cacheDir == "" || m == nil {
 		return nil
 	}
@@ -78,8 +101,12 @@ func saveHashCache(cacheDir string, m map[string][32]byte) error {
 		_ = f.Close()
 		_ = os.Remove(tmp)
 	}()
+	if _, err := f.WriteString(hashCacheMagic); err != nil {
+		return err
+	}
 	var lenBuf [2]byte
 	var hashBuf [32]byte
+	var metaBuf [16]byte
 	for k, v := range m {
 		if len(k) > 65535 {
 			continue
@@ -91,7 +118,12 @@ func saveHashCache(cacheDir string, m map[string][32]byte) error {
 		if _, err := f.Write([]byte(k)); err != nil {
 			return err
 		}
-		copy(hashBuf[:], v[:])
+		binary.LittleEndian.PutUint64(metaBuf[:8], uint64(v.size))
+		binary.LittleEndian.PutUint64(metaBuf[8:], uint64(v.modTime))
+		copy(hashBuf[:], v.hash[:])
+		if _, err := f.Write(metaBuf[:]); err != nil {
+			return err
+		}
 		if _, err := f.Write(hashBuf[:]); err != nil {
 			return err
 		}
