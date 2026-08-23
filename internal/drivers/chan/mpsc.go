@@ -18,20 +18,14 @@
 package ch
 
 import (
-	"sync/atomic"
+	"sync"
 )
 
-type ringSlot struct {
-	sequence uint64
-	val      any
-}
-
 type MPSC struct {
-	cap   uint64
-	mask  uint64
-	head  atomic.Uint64
-	tail  atomic.Uint64
-	slots []ringSlot
+	mu    sync.Mutex
+	head  uint64
+	tail  uint64
+	slots []any
 }
 
 func NewMPSC(capPow2 int) *MPSC {
@@ -39,48 +33,47 @@ func NewMPSC(capPow2 int) *MPSC {
 	for cap < uint64(capPow2) {
 		cap <<= 1
 	}
-	s := &MPSC{cap: cap, mask: cap - 1, slots: make([]ringSlot, cap)}
-	for i := range s.slots {
-		s.slots[i].sequence = uint64(i)
-	}
-	return s
+	return &MPSC{slots: make([]any, cap)}
 }
 
 func (q *MPSC) Enqueue(v any) bool {
-	tail := q.tail.Add(1) - 1
-	for {
-		idx := tail & q.mask
-		slot := &q.slots[idx]
-		seq := atomic.LoadUint64(&slot.sequence)
-		if seq == tail {
-			slot.val = v
-			atomic.StoreUint64(&slot.sequence, tail+1)
-			return true
-		}
+	if q == nil {
+		return false
 	}
+	q.mu.Lock()
+	if q.tail-q.head == uint64(len(q.slots)) {
+		q.grow()
+	}
+	q.slots[q.tail%uint64(len(q.slots))] = v
+	q.tail++
+	q.mu.Unlock()
+	return true
 }
 
 func (q *MPSC) Dequeue() (any, bool) {
-	if q == nil || len(q.slots) == 0 {
+	if q == nil {
 		return nil, false
 	}
-	for {
-		head := q.head.Load()
-		idx := head & q.mask
-		slot := &q.slots[idx]
-		seq := atomic.LoadUint64(&slot.sequence)
-		if seq != head+1 {
-			return nil, false
-		}
-		if slot.val == nil {
-			return nil, false
-		}
-		if !q.head.CompareAndSwap(head, head+1) {
-			continue
-		}
-		v := slot.val
-		slot.val = nil
-		atomic.StoreUint64(&slot.sequence, head+q.cap)
-		return v, true
+	q.mu.Lock()
+	if q.head == q.tail {
+		q.mu.Unlock()
+		return nil, false
 	}
+	index := q.head % uint64(len(q.slots))
+	v := q.slots[index]
+	q.slots[index] = nil
+	q.head++
+	q.mu.Unlock()
+	return v, true
+}
+
+func (q *MPSC) grow() {
+	oldSize := uint64(len(q.slots))
+	newSlots := make([]any, oldSize*2)
+	for index := q.head; index < q.tail; index++ {
+		newSlots[index-q.head] = q.slots[index%oldSize]
+	}
+	q.slots = newSlots
+	q.tail -= q.head
+	q.head = 0
 }
