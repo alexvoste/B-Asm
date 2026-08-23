@@ -136,10 +136,6 @@ func LinkMultipleParallel(ctx context.Context, objFiles []string, bin string, ve
 		})
 	}
 	for i := 0; i < len(targets)-1; i++ {
-		target := targets[i]
-		targetCopy := target
-		targetPtr := new(LinkTarget)
-		*targetPtr = targetCopy
 		task := fo.Task{Fn: func(arg unsafe.Pointer) error {
 			defer wg.Done()
 			linkTarget := (*LinkTarget)(arg)
@@ -148,7 +144,7 @@ func LinkMultipleParallel(ctx context.Context, objFiles []string, bin string, ve
 				return err
 			}
 			return nil
-		}, Arg: unsafe.Pointer(targetPtr)}
+		}, Arg: unsafe.Pointer(&targets[i])}
 		wg.Add(1)
 		if !pool.Submit(task) {
 			if err := task.Run(); err != nil {
