@@ -18,11 +18,10 @@
 package builder
 
 import (
-	"bytes"
+	"math"
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 )
 
 var compileWorkerMemMB = func() uint64 {
@@ -71,46 +70,70 @@ func availableMemMB() uint64 {
 }
 
 func parseMemInfo(data []byte) (uint64, uint64) {
-	available := uint64(0)
-	free := uint64(0)
-	scanner := bytes.NewReader(data)
-	for {
-		line, err := readLine(scanner)
-		if err != nil {
+	var available, free uint64
+	for len(data) > 0 {
+		lineEnd := 0
+		for lineEnd < len(data) && data[lineEnd] != '\n' {
+			lineEnd++
+		}
+		key, value, ok := parseMemInfoLine(data[:lineEnd])
+		if ok {
+			switch key {
+			case memInfoAvailable:
+				available = value
+			case memInfoFree:
+				free = value
+			}
+		}
+		if lineEnd == len(data) {
 			break
 		}
-		fields := strings.Fields(string(line))
-		if len(fields) < 2 {
-			continue
-		}
-		key := strings.TrimSuffix(fields[0], ":")
-		value, parseErr := strconv.ParseUint(fields[1], 10, 64)
-		if parseErr != nil {
-			continue
-		}
-		switch key {
-		case "MemAvailable":
-			available = value
-		case "MemFree":
-			free = value
-		}
+		data = data[lineEnd+1:]
 	}
 	return available, free
 }
 
-func readLine(r *bytes.Reader) ([]byte, error) {
-	buf := make([]byte, 0, 128)
-	for {
-		b, err := r.ReadByte()
-		if err != nil {
-			if len(buf) == 0 {
-				return nil, err
-			}
-			return buf, nil
-		}
-		if b == '\n' {
-			return buf, nil
-		}
-		buf = append(buf, b)
+const (
+	memInfoAvailable = iota + 1
+	memInfoFree
+)
+
+func parseMemInfoLine(line []byte) (int, uint64, bool) {
+	keyLength, key := 0, 0
+	if hasPrefix(line, "MemAvailable:") {
+		keyLength, key = len("MemAvailable:"), memInfoAvailable
+	} else if hasPrefix(line, "MemFree:") {
+		keyLength, key = len("MemFree:"), memInfoFree
+	} else {
+		return 0, 0, false
 	}
+	valueStart := keyLength
+	for valueStart < len(line) && (line[valueStart] == ' ' || line[valueStart] == '\t') {
+		valueStart++
+	}
+	if valueStart == len(line) || line[valueStart] < '0' || line[valueStart] > '9' {
+		return 0, 0, false
+	}
+	var value uint64
+	for valueStart < len(line) && line[valueStart] >= '0' && line[valueStart] <= '9' {
+		digit := uint64(line[valueStart] - '0')
+		if value > (math.MaxUint64-digit)/10 {
+			return 0, 0, false
+		}
+		value = value*10 + digit
+		valueStart++
+	}
+	return key, value, true
+}
+
+func hasPrefix(data []byte, prefix string) bool {
+	if len(data) < len(prefix) {
+		return false
+	}
+	for index := range prefix {
+		if data[index] != prefix[index] {
+			return false
+		}
+	}
+	return true
 }
