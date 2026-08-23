@@ -21,6 +21,7 @@
 package io_uring
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -51,6 +52,28 @@ func TestIoUringStructSizes(t *testing.T) {
 	t.Logf("ioUringSqringOffsets size = %d", unsafe.Sizeof(ioUringSqringOffsets{}))
 	t.Logf("ioUringCqringOffsets size = %d", unsafe.Sizeof(ioUringCqringOffsets{}))
 	t.Logf("ioUringParams size = %d", unsafe.Sizeof(ioUringParams{}))
+}
+
+func TestValidateResult(t *testing.T) {
+	tests := []struct {
+		name     string
+		result   *ioUringCqe
+		expected int
+		shortErr error
+		wantErr  error
+	}{
+		{"nil completion", nil, 4, io.ErrUnexpectedEOF, os.ErrInvalid},
+		{"short read", &ioUringCqe{res: 3}, 4, io.ErrUnexpectedEOF, io.ErrUnexpectedEOF},
+		{"short write", &ioUringCqe{res: 3}, 4, io.ErrShortWrite, io.ErrShortWrite},
+		{"complete", &ioUringCqe{res: 4}, 4, io.ErrUnexpectedEOF, nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := validateResult(test.result, test.expected, test.shortErr); got != test.wantErr {
+				t.Fatalf("validateResult() = %v, want %v", got, test.wantErr)
+			}
+		})
+	}
 }
 
 func TestIoUringRuntimeState(t *testing.T) {

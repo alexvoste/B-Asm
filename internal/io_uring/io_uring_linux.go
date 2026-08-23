@@ -21,6 +21,7 @@
 package io_uring
 
 import (
+	"io"
 	"os"
 	"sync"
 	"syscall"
@@ -257,10 +258,7 @@ func submitRead(fd int, buf []byte, offset int64) error {
 	if err != nil {
 		return err
 	}
-	if cqe.res < 0 {
-		return syscall.Errno(-cqe.res)
-	}
-	return nil
+	return validateResult(cqe, len(buf), io.ErrUnexpectedEOF)
 }
 
 func submitWrite(fd int, data []byte, offset int64) error {
@@ -288,11 +286,18 @@ func submitWrite(fd int, data []byte, offset int64) error {
 	if err != nil {
 		return err
 	}
+	return validateResult(cqe, len(data), io.ErrShortWrite)
+}
+
+func validateResult(cqe *ioUringCqe, expected int, shortErr error) error {
 	if cqe == nil {
 		return os.ErrInvalid
 	}
 	if cqe.res < 0 {
 		return syscall.Errno(-cqe.res)
+	}
+	if int(cqe.res) != expected {
+		return shortErr
 	}
 	return nil
 }
