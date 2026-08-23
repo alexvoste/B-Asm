@@ -21,15 +21,22 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
+	"sync"
+	"sync/atomic"
 
 	"github.com/forgezero-cli/ForgeZero/internal/hashpool"
 )
 
-var sourceHashes = make(map[string][32]byte)
+var sourceHashes = make(map[string]hashCacheEntry)
 
 func refreshSourceHashes(dirs []string) error {
-	buf := make([]byte, 32*1024)
-	sourceHashes = make(map[string][32]byte)
+	return refreshSourceHashesWithCache(dirs, nil)
+}
+
+func refreshSourceHashesWithCache(dirs []string, cache map[string]hashCacheEntry) error {
+	paths := make([]string, 0)
+	metadata := make([]hashCacheEntry, 0)
 	for _, root := range dirs {
 		if root == "" {
 			continue
@@ -49,34 +56,124 @@ func refreshSourceHashes(dirs []string) error {
 				if fi.IsDir() {
 					return nil
 				}
-			}
-			f, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			h := hashpool.GetHasher()
-			defer hashpool.PutHasher(h)
-			for {
-				n, rerr := f.Read(buf)
-				if n > 0 {
-					_, _ = h.Write(buf[:n])
+				metadata = append(metadata, hashCacheEntry{size: fi.Size(), modTime: fi.ModTime().UnixNano()})
+			} else {
+				fi, serr := d.Info()
+				if serr != nil {
+					return serr
 				}
-				if rerr == io.EOF {
-					break
-				}
-				if rerr != nil {
-					_ = f.Close()
-					return rerr
-				}
+				metadata = append(metadata, hashCacheEntry{size: fi.Size(), modTime: fi.ModTime().UnixNano()})
 			}
-			_ = f.Close()
-			var sum [32]byte
-			h.Sum(sum[:0])
-			sourceHashes[path] = sum
+			paths = append(paths, path)
 			return nil
 		}); err != nil {
 			return err
 		}
 	}
+	result := make(map[string]hashCacheEntry, len(paths))
+	if len(paths) == 0 {
+		sourceHashes = result
+		return nil
+	}
+	workers := runtime.GOMAXPROCS(0)
+	if workers < 1 {
+		workers = 1
+	}
+	if workers > len(paths) {
+		workers = len(paths)
+	}
+	type hashJob struct {
+		path  string
+		index int
+	}
+	hashes := make([]hashCacheEntry, len(paths))
+	pending := 0
+	for index, path := range paths {
+		if entry, ok := cache[path]; ok && entry.modTime == metadata[index].modTime && entry.size == metadata[index].size && entry.modTime != 0 {
+			hashes[index] = entry
+			continue
+		}
+		pending++
+	}
+	if pending == 0 {
+		for index, path := range paths {
+			result[path] = hashes[index]
+		}
+		sourceHashes = result
+		return nil
+	}
+	jobs := make(chan hashJob, workers)
+	var wg sync.WaitGroup
+	var firstErr error
+	var errMu sync.Mutex
+	var stopped atomic.Bool
+	for worker := 0; worker < workers; worker++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			buf := make([]byte, 32*1024)
+			for job := range jobs {
+				if stopped.Load() {
+					continue
+				}
+				f, err := os.Open(job.path)
+				if err != nil {
+					errMu.Lock()
+					if firstErr == nil {
+						firstErr = err
+					}
+					errMu.Unlock()
+					stopped.Store(true)
+					continue
+				}
+				h := hashpool.GetHasher()
+				var readErr error
+				for {
+					n, currentErr := f.Read(buf)
+					if n > 0 {
+						_, _ = h.Write(buf[:n])
+					}
+					if currentErr == io.EOF {
+						break
+					}
+					if currentErr != nil {
+						readErr = currentErr
+						errMu.Lock()
+						if firstErr == nil {
+							firstErr = currentErr
+						}
+						errMu.Unlock()
+						stopped.Store(true)
+						break
+					}
+				}
+				_ = f.Close()
+				var sum [32]byte
+				h.Sum(sum[:0])
+				hashpool.PutHasher(h)
+				if readErr == nil {
+					hashes[job.index] = hashCacheEntry{
+						hash:    sum,
+						size:    metadata[job.index].size,
+						modTime: metadata[job.index].modTime,
+					}
+				}
+			}
+		}()
+	}
+	for index, path := range paths {
+		if hashes[index].modTime == 0 {
+			jobs <- hashJob{path: path, index: index}
+		}
+	}
+	close(jobs)
+	wg.Wait()
+	if firstErr != nil {
+		return firstErr
+	}
+	for index, path := range paths {
+		result[path] = hashes[index]
+	}
+	sourceHashes = result
 	return nil
 }
