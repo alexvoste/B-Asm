@@ -549,13 +549,6 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 				walkRoots = []string{}
 				for _, d := range dirs {
 					walkRoots = append(walkRoots, d)
-					cands := []string{"src", "include", "lib", "cmd", filepath.Join("src", "core")}
-					for _, s := range cands {
-						p := filepath.Join(d, s)
-						if info, err := os.Stat(p); err == nil && info.IsDir() {
-							walkRoots = append(walkRoots, p)
-						}
-					}
 				}
 			}
 			for _, dir := range walkRoots {
@@ -613,6 +606,23 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 				}
 			}
 		}
+	}
+	if len(srcFiles) > 1 {
+		seen := make(map[string]struct{}, len(srcFiles))
+		unique := srcFiles[:0]
+		for _, src := range srcFiles {
+			key, err := filepath.Abs(src)
+			if err != nil {
+				key = filepath.Clean(src)
+			}
+			key = filepath.Clean(key)
+			if _, exists := seen[key]; exists {
+				continue
+			}
+			seen[key] = struct{}{}
+			unique = append(unique, src)
+		}
+		srcFiles = unique
 	}
 
 	if autoDiscoveredSources && len(srcFiles) > 0 {
