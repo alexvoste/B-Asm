@@ -69,3 +69,26 @@ func TestEmitFlatBinaryLayout(t *testing.T) {
 		}
 	}
 }
+
+func TestNewNakedMemoryLayoutRejectsSectionAddressOverflow(t *testing.T) {
+	flash := Region{"FLASH", 0xfffffffc, 4, PermRead | PermExec}
+	layout, err := NewNakedMemoryLayout(flash, Region{}, []byte{1, 2, 3, 4}, nil, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := EmitFlatBinary(layout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out) != 4 || out[0] != 1 || out[3] != 4 {
+		t.Fatalf("unexpected output: %v", out)
+	}
+}
+
+func TestNewNakedMemoryLayoutRejectsUnrepresentableSection(t *testing.T) {
+	ram := Region{"RAM", 0, 0xffffffff, PermRead | PermWrite}
+	_, err := NewNakedMemoryLayout(Region{}, ram, nil, nil, 0xffffffff)
+	if err != ErrRegionOverflow {
+		t.Fatalf("error = %v, want %v", err, ErrRegionOverflow)
+	}
+}
