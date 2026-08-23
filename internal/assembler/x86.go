@@ -330,10 +330,22 @@ func parseOperand(tok []byte) (operand, error) {
 		}
 		return operand{typ: opMem, base: base, index: index, scale: scale, disp: disp}, nil
 	}
-	if num, err := parseNumber(tok); err == nil {
+	if num, ok := parseImmediate(tok); ok {
 		return operand{typ: opImm, imm: num}, nil
 	}
 	return operand{typ: opLabel, label: tok}, nil
+}
+
+func parseImmediate(tok []byte) (uint64, bool) {
+	if len(tok) > 1 && tok[0] == '-' {
+		magnitude, err := parseNumber(tok[1:])
+		if err != nil || magnitude > 0x80000000 {
+			return 0, false
+		}
+		return uint64(uint32(-int64(magnitude))), true
+	}
+	number, err := parseNumber(tok)
+	return number, err == nil
 }
 
 func encodeModRM(mod byte, reg byte, rm byte) byte {

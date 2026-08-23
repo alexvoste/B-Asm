@@ -20,6 +20,7 @@ package assembler
 import (
 	"bytes"
 	"errors"
+	"math"
 )
 
 func equalBytes(a, b []byte) bool {
@@ -168,6 +169,9 @@ func parseNumber(token []byte) (uint64, error) {
 		}
 		if digit >= uint64(base) {
 			return 0, errors.New("invalid digit for base")
+		}
+		if v > (math.MaxUint64-digit)/uint64(base) {
+			return 0, errors.New("number overflow")
 		}
 		v = v*uint64(base) + digit
 	}

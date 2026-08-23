@@ -18,6 +18,7 @@
 package assembler
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -96,6 +97,20 @@ func TestEmitArithImm(t *testing.T) {
 	}
 	if len(p.text.data) == 0 {
 		t.Error("no code generated")
+	}
+}
+
+func TestEmitNegativeImmediate(t *testing.T) {
+	p := &parser{}
+	p.text.name = []byte(".text")
+	p.text.data = make([]byte, 0, 1024)
+	p.current = &p.text
+	if err := p.parseLine([]byte("add rax, -1")); err != nil {
+		t.Fatal(err)
+	}
+	want := []byte{0x48, 0x81, 0xc0, 0xff, 0xff, 0xff, 0xff}
+	if !bytes.Equal(p.text.data, want) {
+		t.Fatalf("encoded negative immediate = %x, want %x", p.text.data, want)
 	}
 }
 
@@ -666,6 +681,14 @@ func TestParseNumberEmpty(t *testing.T) {
 	_, err := parseNumber([]byte(""))
 	if err == nil {
 		t.Error("empty should fail")
+	}
+}
+
+func TestParseNumberOverflow(t *testing.T) {
+	for _, token := range []string{"18446744073709551616", "0x10000000000000000"} {
+		if _, err := parseNumber([]byte(token)); err == nil {
+			t.Fatalf("parseNumber(%q) expected overflow error", token)
+		}
 	}
 }
 
