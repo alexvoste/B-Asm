@@ -13,8 +13,8 @@ for cmd in hyperfine nasm ld make; do
     exit 1
   }
 done
-if [[ ! -x "./fzt" ]]; then
-  echo "❌ ./fzt not found or not executable. Run this from Quench root."
+if [[ ! -x "./qh" ]]; then
+  echo "❌ ./qh not found or not executable. Run build.sh from Quench root."
   exit 1
 fi
 
@@ -62,7 +62,7 @@ echo "🔍 Verifying builds (dry-run)..."
 cd "$TEST_DIR"
 
 echo "  → Quench..."
-if ! ../fzt -dir . -out fz_out -verbose; then
+if ! ../qh -dir . -out fz_out -verbose; then
   echo "❌ Quench build failed. Check output above."
   exit 1
 fi
@@ -83,7 +83,7 @@ cd "$TEST_DIR"
 
 hyperfine --warmup 3 \
   --prepare "make clean && rm -rf .fz_objs fz_out" \
-  "qh -p perfomance -dir . -out fz_out -toolchain clang -j $(nproc)" \
+  "../qh -dir . -out fz_out -toolchain clang -j $(nproc)" \
   "make -j $(nproc)"
 
 cd ..
