@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Benchmark script reliability** – updated `bench/bench.sh` to use the standard `qh` binary and corrected the benchmark invocation.
+  ([74bb02d](https://github.com/qecko-labs/Quench/commit/74bb02d))
+
+- **Source discovery deduplication coverage** – added regression coverage for unique auto-discovery roots.
+  ([c7ff62b](https://github.com/qecko-labs/Quench/commit/c7ff62b))
+
 - **Assembly numeric overflow protection** – `parseNumber` now detects and rejects overflow conditions, preventing silent wraparound for constants exceeding 64-bit range.  
   ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
 
@@ -17,6 +23,12 @@
   ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
 
 ### Changed
+
+- **`internal/builder/builder.go`** – removed redundant nested source roots and deduplicated auto-discovered source paths to prevent duplicate object files and symbol collisions.
+  ([3fc3dbc](https://github.com/qecko-labs/Quench/commit/3fc3dbc))
+
+- **`internal/linker/flat.go`** – added a direct read/write path for files up to 64 KiB, reducing small-file copy benchmark time from approximately 48.4 µs to 29.6 µs.
+  ([09156c6](https://github.com/qecko-labs/Quench/commit/09156c6))
 
 - **`internal/builder/hash_cache.go`** – upgraded serialization format to `FZHC2` magic to persist extended metadata (size + mtime).  
   ([34c76c0](https://github.com/qecko-labs/Quench/commit/34c76c0))
@@ -57,6 +69,9 @@
   ([30a5548](https://github.com/qecko-labs/Quench/commit/30a5548))
 
 ### Performance
+
+- End-to-end benchmark on 2500 assembly modules completed in **1.173 s** with Quench versus **13.740 s** with Make/NASM, an **11.71x speedup**.
+  ([3fc3dbc](https://github.com/qecko-labs/Quench/commit/3fc3dbc))
 
 - `fo.Submit` benchmark now passes with **0 allocs/op**.  
   ([d7a4098](https://github.com/qecko-labs/Quench/commit/d7a4098))
@@ -930,4 +945,8 @@ efa2182 perf(builder): replace RWMutex with spinlock in action_cache
 30a5548 fix(fo): add publicQ nil check in steal() and ensure init
 0b571a6 fix(fo): add nil checks in popLocal, steal, Submit and reserveBatch
 34c76c0 linker: fix data race in parallel LinkMultipleParallel by passing slice element directly
+74bb02d fix(bench): use the standard qh binary and correct the benchmark invocation
+3fc3dbc fix(builder): deduplicate auto-discovered sources
+09156c6 perf(linker): optimize small-file copy path
+c7ff62b test(builder): add source discovery deduplication coverage
 ```
