@@ -122,6 +122,7 @@ func verifyNoRelocations(file *elf.File) error {
 }
 
 func copyFileHot(src, dst string) error {
+	const directCopyLimit = 64 * 1024
 	sfd, err := openHot(src, syscall.O_RDONLY, 0)
 	if err != nil {
 		return err
@@ -136,6 +137,20 @@ func copyFileHot(src, dst string) error {
 	if err != nil {
 		_ = closeHot(sfd)
 		return err
+	}
+	if st.Size <= directCopyLimit {
+		err := copyRWHot(sfd, dfd)
+		closeErr := closeHot(dfd)
+		if closeErr == nil {
+			closeErr = closeHot(sfd)
+		} else {
+			_ = closeHot(sfd)
+		}
+		if err != nil {
+			_ = unlinkHot(dst)
+			return err
+		}
+		return closeErr
 	}
 	if err := copySpliceHot(sfd, dfd); err != nil {
 		_ = closeHot(dfd)
@@ -163,6 +178,20 @@ func copyFileHotRW(src, dst string, mode uint32) error {
 		_ = closeHot(sfd)
 		return err
 	}
+	err = copyRWHot(sfd, dfd)
+	closeErr := closeHot(dfd)
+	if closeErr == nil {
+		closeErr = closeHot(sfd)
+	} else {
+		_ = closeHot(sfd)
+	}
+	if err != nil {
+		return err
+	}
+	return closeErr
+}
+
+func copyRWHot(sfd, dfd int) error {
 	var buf [65536]byte
 	for {
 		rn, rerr := readHot(sfd, buf[:])
@@ -171,8 +200,6 @@ func copyFileHotRW(src, dst string, mode uint32) error {
 			for written < rn {
 				wn, werr := writeHot(dfd, buf[written:rn])
 				if werr != nil {
-					_ = closeHot(dfd)
-					_ = closeHot(sfd)
 					return werr
 				}
 				written += wn
@@ -182,20 +209,11 @@ func copyFileHotRW(src, dst string, mode uint32) error {
 			if rerr == syscall.EINTR {
 				continue
 			}
-			_ = closeHot(dfd)
-			_ = closeHot(sfd)
 			return rerr
 		}
 		if rn == 0 {
 			break
 		}
-	}
-	if err := closeHot(dfd); err != nil {
-		_ = closeHot(sfd)
-		return err
-	}
-	if err := closeHot(sfd); err != nil {
-		return err
 	}
 	return nil
 }
