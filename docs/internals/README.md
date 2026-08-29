@@ -1,6 +1,6 @@
 # Internals
 
-The internal packages are where Quench’s behavior is implemented. This section is primarily for contributors and maintainers who need to understand how the project works below the CLI surface.
+The internal packages are where ForgeZero’s behavior is implemented. This section is primarily for contributors and maintainers who need to understand how the project works below the CLI surface.
 
 ## Important packages
 

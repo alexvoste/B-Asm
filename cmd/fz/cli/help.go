@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@ package cli
 import "github.com/forgezero-cli/ForgeZero/cmd/fz/stdio"
 
 const helpBody1 = `
-Quench – assembly & C build tool (Quench `
+ForgeZero – assembly & C build tool (ForgeZero `
 
-const helpBody2 = `) · GPLv3 · (c) Quench-cli
+const helpBody2 = `) · GPLv3 · (c) ForgeZero-cli
 
 Usage:
-  qh [options] (-asm <file> | -cc <file> | -dir <dir> | (no args with config))
-  qh audit|sbom|doctor|verify|bench|pm|contribute [options]
+  fz [options] (-asm <file> | -cc <file> | -dir <dir> | (no args with config))
+  fz audit|sbom|doctor|verify|bench|pm|contribute [options]
 
 Options:
   -asm <file>          Assembler source (.asm, .s, .S, .fasm)
@@ -48,7 +48,7 @@ Options:
   -clean               Remove build artifacts
   -watch               Watch files and auto-rebuild
   -json                Output build report in JSON
-  -config <file>       Config file (default: .qh.toml, .qh.yaml, qh.toml, qh.yaml, .qh.yml, qh.yml)
+  -config <file>       Config file (default: .fz.toml, .fz.yaml, fz.toml, fz.yaml, .fz.yml, fz.yml)
   -man                 Generate roff man page and exit
   -format <elf32|elf64|bin>  Output format (default: elf64)
   -T <file>            Linker script
@@ -58,10 +58,10 @@ Options:
   -type <executable|static>  Build type
   -lib                 Shortcut for -type static
   -compile-commands    Generate compile_commands.json for LSP
-  -init                Initialize project (.qh.yaml, .qhignore)
+  -init                Initialize project (.fz.yaml, .fzignore)
   -shell               Run interactive shell
   -autoBuild           Auto build project with auto backend
-  -update              Update qh to latest version
+  -update              Update fz to latest version
   -rollback            Restore the previous binary saved by -update
   -rollback-to <ver>   Download and install a specific release version
   -iso[=<dir>]         Package the build into a bootable ISO image
@@ -82,7 +82,7 @@ Aegis Security & Integrity:
   bench [options]      Nanosecond build phase profiler (--asm|--cc|--dir, --n, --json, --verbose)
   contribute           Generate contributor guide with environment checks
 
-Package Manager (qh pm):
+Package Manager (fz pm):
   add <repo> [version]   Clone and add package
   remove <name>          Remove package
   list                   Show installed packages
@@ -94,22 +94,22 @@ Package Manager (qh pm):
 Supported extensions: .asm, .s, .S, .fasm, .c, .cpp, .cc, .cxx, .m (Objective-C)
 
 Examples:
-  qh -asm boot.asm -format bin -out boot.bin
-  qh -cc main.c -strict -verbose
-  qh -dir ./src -out myapp -watch
-  qh -json -cc test.c
-  qh -dir . -clean
-  qh -target arm-linux-gnueabihf -cc test.c -out test_arm
-  qh -profile performance -cc main.c
-  qh -p power-saver -dir ./src
-  qh contribute
-  qh sbom -out sbom.json
-  qh doctor -json
-  qh verify --update
-  qh bench -dir ./src -json
-  qh pm add github.com/user/repo
-  qh -dir ./src -out kernel -iso=./isoroot -iso-hybrid
-  qh -rollback-to 5.1.0
+  fz -asm boot.asm -format bin -out boot.bin
+  fz -cc main.c -strict -verbose
+  fz -dir ./src -out myapp -watch
+  fz -json -cc test.c
+  fz -dir . -clean
+  fz -target arm-linux-gnueabihf -cc test.c -out test_arm
+  fz -profile performance -cc main.c
+  fz -p power-saver -dir ./src
+  fz contribute
+  fz sbom -out sbom.json
+  fz doctor -json
+  fz verify --update
+  fz bench -dir ./src -json
+  fz pm add github.com/user/repo
+  fz -dir ./src -out kernel -iso=./isoroot -iso-hybrid
+  fz -rollback-to 5.1.0
 `
 
 func HelpText() string {

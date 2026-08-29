@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -871,6 +871,25 @@ func TestEnsureContextTimeoutReplacesExpiredContext(t *testing.T) {
 		t.Fatal("expected deadline on new context")
 	} else if time.Until(deadline) < 29*time.Second {
 		t.Fatalf("expected at least 29s remaining, got %v", time.Until(deadline))
+	}
+}
+
+func TestEnsureContextTimeoutPreservesActiveShortDeadline(t *testing.T) {
+	shortCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	ctx, cancelCtx := ensureContextTimeout(shortCtx, 30*time.Second)
+	defer cancelCtx()
+
+	if ctx != shortCtx {
+		t.Fatal("expected active context to be preserved")
+	}
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		t.Fatal("expected original deadline")
+	}
+	if remaining := time.Until(deadline); remaining > time.Second || remaining <= 0 {
+		t.Fatalf("expected original deadline to remain active, got %v", remaining)
 	}
 }
 

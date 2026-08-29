@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,6 +43,25 @@ func TestMergeAllFields(t *testing.T) {
 		AuditIgnore:   []string{"vendor"},
 		ToolChecksums: map[string]string{"gcc": "abc"},
 		Flags:         Flags{Asm: []string{"-felf64"}, Cc: []string{"-O2"}, Ld: []string{"-T"}},
+		Toolchain:     "gcc",
+		Linker:        "lld",
+		Preprocess: PreprocessConfig{
+			Enabled: true,
+			Inputs:  []string{"input.c"},
+			Outputs: []string{"input.i"},
+			Defines: map[string]string{"DEBUG": "1"},
+		},
+		AutoBuild: AutoBuildConfig{
+			Enabled:            true,
+			LogLevel:           "debug",
+			ContinueOnError:    true,
+			BuildOrder:         []string{"a", "b"},
+			DefaultSkipTests:   true,
+			DefaultEnvironment: map[string]string{"CC": "gcc"},
+		},
+		DepBuild: DepBuildConfig{
+			StepSets: []StepSet{{Name: "compile", BuildStep: BuildStep{Command: "cc", With: map[string]string{"MODE": "fast"}}}},
+		},
 	}
 	base.Merge(other)
 	if base.Name != "proj" || base.Output != "out" || len(base.SourceDirs) != 1 {
@@ -50,6 +69,18 @@ func TestMergeAllFields(t *testing.T) {
 	}
 	if base.ToolChecksums["gcc"] != "abc" {
 		t.Fatal("checksums not merged")
+	}
+	if base.Toolchain != "gcc" || base.Linker != "lld" {
+		t.Fatal("toolchain settings not merged")
+	}
+	if !base.Preprocess.Enabled || base.Preprocess.Defines["DEBUG"] != "1" {
+		t.Fatal("preprocess settings not merged")
+	}
+	if !base.AutoBuild.Enabled || base.AutoBuild.BuildOrder[1] != "b" || base.AutoBuild.DefaultEnvironment["CC"] != "gcc" {
+		t.Fatal("auto build settings not merged")
+	}
+	if len(base.DepBuild.StepSets) != 1 || base.DepBuild.StepSets[0].With["MODE"] != "fast" {
+		t.Fatal("dependency step sets not merged")
 	}
 	other2 := &Config{SourceFile: "main.asm"}
 	base.Merge(other2)

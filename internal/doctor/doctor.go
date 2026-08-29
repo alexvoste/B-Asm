@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -245,7 +245,7 @@ func scanTree(root string) (dirs, files int, err error) {
 		}
 		for _, ent := range entries {
 			name := ent.Name()
-			if name == ".git" || name == ".qh_objs" || name == ".qh_cache" || name == "vendor" {
+			if name == ".git" || name == ".fz_objs" || name == ".fz_cache" || name == "vendor" {
 				continue
 			}
 			path := filepath.Join(dir, name)

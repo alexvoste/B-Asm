@@ -1,6 +1,6 @@
 # Documentation index
 
-Use this page as the entry point for the Quench documentation set.
+Use this page as the entry point for the ForgeZero documentation set.
 
 ## Start here
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ func main() {
 			stdio.WriteFmt(2, "init failed: %v\n", err)
 			os.Exit(1)
 		}
-		stdio.WriteFmt(1, "%s\n", "project initialized. edit .qh.toml to configure your build.")
+		stdio.WriteFmt(1, "%s\n", "project initialized. edit .fz.toml to configure your build.")
 		return
 	}
 

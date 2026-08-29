@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@ package man
 import "time"
 
 func GenerateManPage(version string) string {
-	head := ".TH qh 1 \"" + time.Now().Format("Jan 2006") + "\" \"qh " + version + "\" \"User Commands\"\n"
+	head := ".TH fz 1 \"" + time.Now().Format("Jan 2006") + "\" \"fz " + version + "\" \"User Commands\"\n"
 	body := `.SH NAME
-qh \- assemble projects with a single command
+ fz \- assemble projects with a single command
 .SH SYNOPSIS
-qh [OPTIONS] (\-asm <file> | \-cc <file> | \-dir <dir>)
+ fz [OPTIONS] (\-asm <file> | \-cc <file> | \-dir <dir>)
 .SH DESCRIPTION
-qh is a build tool with built-in NASM/FASM backends. External dependencies: NONE.
+ fz is a build tool with built-in NASM/FASM backends. External dependencies: NONE.
 It automates assembling, compiling, linking, caching, and provides watch mode,
 JSON output, strict sanitizers, and deterministic builds with Zig integration.
 .SH OPTIONS
@@ -80,7 +80,7 @@ Enable aggressive sanitizers (use-after-return, use-after-scope) – prefers cla
 Select toolchain for C/C++ builds and linking
 .TP
 \fB\-\-clean\fR
-Remove all build artifacts (.qh_objs, .qh_cache, binaries)
+Remove all build artifacts (.fz_objs, .fz_cache, binaries)
 .TP
 \fB\-\-watch\fR
 Watch source files and rebuild automatically
@@ -89,7 +89,7 @@ Watch source files and rebuild automatically
 Output build report in JSON format (CI/CD)
 .TP
 \fB\-\-config\fR <file>
-Config file path (default: .qh.toml, .qh.yaml, qh.toml, qh.yaml, .qh.yml, qh.yml)
+Config file path (default: .fz.toml, .fz.yaml, fz.toml, fz.yaml, .fz.yml, fz.yml)
 .TP
 \fB\-\-man\fR
 Generate roff man page and exit
@@ -100,12 +100,12 @@ Show this help
 \fB\-v, \-\-version\fR
 Show version
 .SH EXAMPLES
-qh -asm boot.asm
-qh -cc main.c -strict -verbose
-qh -dir ./src -out myapp -watch
-qh -json -cc test.c
-qh -dir . -clean
-qh -asm boot.asm -format bin -out boot.bin
+ fz -asm boot.asm
+ fz -cc main.c -strict -verbose
+ fz -dir ./src -out myapp -watch
+ fz -json -cc test.c
+ fz -dir . -clean
+ fz -asm boot.asm -format bin -out boot.bin
 .SH AUTHORS
 Alex Voste <alexvoste@proton.me>
 .SH SEE ALSO

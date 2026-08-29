@@ -1,6 +1,6 @@
 # TOML configuration
 
-TOML is the preferred configuration format for Quench. It is human-readable, explicit, and easy to generate from tooling.
+TOML is the preferred configuration format for ForgeZero. It is human-readable, explicit, and easy to generate from tooling.
 
 ## Minimal example
 

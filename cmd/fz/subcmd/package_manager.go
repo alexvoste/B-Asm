@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,14 +28,14 @@ import (
 
 func HandlePackageManager(ctx context.Context, args []string) {
 	if len(args) < 3 {
-		stdio.WriteFmt(1, "%s\n", "Usage: qh pm <add|remove|list|update|catalog|search|install> [args]")
+		stdio.WriteFmt(1, "%s\n", "Usage: fz pm <add|remove|list|update|catalog|search|install> [args]")
 		return
 	}
 	subcmd := args[2]
 	switch subcmd {
 	case "add":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm add <repo-url> [version]")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm add <repo-url> [version]")
 			return
 		}
 		pkgURL := args[3]
@@ -49,7 +49,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "remove":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm remove <repo-url>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm remove <repo-url>")
 			return
 		}
 		if err := fzpkg.Remove(ctx, args[3]); err != nil {
@@ -68,7 +68,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 				os.Exit(1)
 			}
 		} else {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm list [catalog]")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm list [catalog]")
 		}
 	case "update":
 		if err := fzpkg.Update(ctx); err != nil {
@@ -82,7 +82,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "search":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm search <keyword>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm search <keyword>")
 			return
 		}
 		if err := pkgman.SearchCatalog(ctx, args[3]); err != nil {
@@ -91,7 +91,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "install":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm install <catalog-package-name>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm install <catalog-package-name>")
 			return
 		}
 		if err := fzpkg.InstallFromCatalog(ctx, args[3]); err != nil {
@@ -100,7 +100,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "verify":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm verify <package>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm verify <package>")
 			return
 		}
 		if err := fzpkg.Verify(args[3]); err != nil {
@@ -109,7 +109,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "sign":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm sign <package>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm sign <package>")
 			return
 		}
 		if err := fzpkg.Sign(args[3]); err != nil {
@@ -123,7 +123,7 @@ func HandlePackageManager(ctx context.Context, args []string) {
 		}
 	case "trust":
 		if len(args) < 4 {
-			stdio.WriteFmt(1, "%s\n", "Usage: qh pm trust <key>")
+			stdio.WriteFmt(1, "%s\n", "Usage: fz pm trust <key>")
 			return
 		}
 		if err := fzpkg.Trust(args[3]); err != nil {

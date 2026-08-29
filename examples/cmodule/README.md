@@ -31,8 +31,8 @@ typedef struct {
 Build
 
 ```sh
-qh -dir ./c_src/ -out libfz_example.so
-qh -verify libfz_example.so
+ fz -dir ./c_src/ -out libfz_example.so
+ fz -verify libfz_example.so
 
 ```
 

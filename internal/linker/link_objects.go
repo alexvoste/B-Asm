@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -66,6 +66,9 @@ func LinkObjects(ctx context.Context, target string, objs []string, cfg *config.
 }
 
 func dedupObjects(elements []string) []string {
+	if len(elements) < 2 {
+		return elements
+	}
 	encountered := make(map[string]struct{}, len(elements))
 	result := make([]string, 0, len(elements))
 	for _, v := range elements {

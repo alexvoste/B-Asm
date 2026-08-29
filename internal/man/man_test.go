@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import (
 func TestGenerateManPage(t *testing.T) {
 	version := "1.7.1"
 	page := GenerateManPage(version)
-	if !strings.Contains(page, ".TH qh") {
+	if !strings.Contains(page, ".TH fz") {
 		t.Error("missing .TH header")
 	}
 	if !strings.Contains(page, version) {

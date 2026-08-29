@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -40,6 +41,19 @@ func TestAssembleInvalidPaths(t *testing.T) {
 	err := Assemble(context.Background(), "../escape", "out.o", false, false, "auto")
 	if err == nil {
 		t.Fatal("expected path error")
+	}
+}
+
+func TestAssembleNilContext(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "test.txt")
+	if err := os.WriteFile(src, []byte("test"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	err := Assemble(nil, src, filepath.Join(dir, "test.o"), false, false, "raw")
+	if err == nil || !strings.Contains(err.Error(), "unsupported source extension") {
+		t.Fatalf("expected unsupported extension error, got %v", err)
 	}
 }
 

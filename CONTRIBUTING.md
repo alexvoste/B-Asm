@@ -1,8 +1,8 @@
-# Contributing to qh(Quench)
+# Contributing to fz(ForgeZero)
 
 > The assembly swiss army knife — built with discipline, shipped with intent.
 
-Thank you for considering a contribution to `qh`. This document establishes the standards and workflow expected of all contributors. Please read it in full before opening issues or submitting pull requests.
+Thank you for considering a contribution to `fz`. This document establishes the standards and workflow expected of all contributors. Please read it in full before opening issues or submitting pull requests.
 
 ---
 
@@ -31,7 +31,7 @@ All contributors are expected to engage professionally and constructively. Disre
 
 Contributions are welcome in the following forms:
 
-- **Bug reports** — reproducible, well-documented issues filed via [GitHub Issues](https://github.com/forgezero-cli/Quench/issues)
+- **Bug reports** — reproducible, well-documented issues filed via [GitHub Issues](https://github.com/forgezero-cli/ForgeZero/issues)
 - **Feature proposals** — opened as issues before any implementation begins
 - **Pull requests** — bug fixes, features, refactors, or documentation improvements
 - **Documentation** — corrections, clarifications, and examples
@@ -50,23 +50,22 @@ staticcheck ./...
 
 ---
 
-
 ## Development Setup
 
 ### Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Go          | ≥ 1.21  |
-| NASM        | any recent |
-| GCC + Binutils | any recent |
-| Clang *(optional)* | for sanitizer tests |
+| Requirement        | Version             |
+| ------------------ | ------------------- |
+| Go                 | ≥ 1.21              |
+| NASM               | any recent          |
+| GCC + Binutils     | any recent          |
+| Clang _(optional)_ | for sanitizer tests |
 
 ### Clone
 
 ```bash
-git clone https://github.com/forgezero-cli/Quench.git
-cd Quench
+git clone https://github.com/forgezero-cli/ForgeZero.git
+cd ForgeZero
 ```
 
 ### Install system dependencies
@@ -86,7 +85,7 @@ sudo apt install clang
 ### Build
 
 ```bash
-go build -o qh ./cmd/qh
+go build -o fz ./cmd/fz
 ```
 
 ### Run the full test suite
@@ -95,7 +94,7 @@ go build -o qh ./cmd/qh
 go test ./... -cover
 ```
 
-### Run with race detector *(required before submitting a PR)*
+### Run with race detector _(required before submitting a PR)_
 
 ```bash
 go test -race ./...
@@ -176,9 +175,9 @@ go test -v ./internal/your_feature_name/...
 # Run a specific test function by name
 go test -v -run TestFunctionName ./internal/your_feature_name/...
 
-or ./qh -alex
+or ./fz -alex
 
-Quench Test Runner (v4.8.0-dev)
+ForgeZero Test Runner (v4.8.0-dev)
 ────────────────────────────────────────────────────────────
   [✓] Environment Check (doctor) [PASS] (36 ms)
   [✓] Unit Tests (go test -race) [PASS] (8090 ms)
@@ -186,7 +185,7 @@ Quench Test Runner (v4.8.0-dev)
   [✓] Static Analysis (go vet) [PASS] (397 ms)
   [✓] Linter (staticcheck) [PASS] (0 ms)
   [✓] Code Formatting (go fmt) [PASS] (94 ms)
-  [✓] Build Test (qh build) [PASS] (1468 ms)
+  [✓] Build Test (fz build) [PASS] (1468 ms)
   [✓] Gloria Compilation [PASS] (2 ms)
   [✓] HADES Codegen [PASS] (0 ms)
   [✓] Integration Tests [PASS] (178 ms)
@@ -245,15 +244,15 @@ Exception: Loop indices (`i`, `j`, `k`) are allowed for short, simple loops.
 
 ### Packages / Feature Directories
 
-| BAD | GOOD |
-|------|------|
-| `internal/x` | `internal/elf_parser` |
-| `internal/utils` | `internal/string_utils` or `internal/file_utils` |
-| `internal/feature` | `internal/watchdog` |
+| BAD                | GOOD                                             |
+| ------------------ | ------------------------------------------------ |
+| `internal/x`       | `internal/elf_parser`                            |
+| `internal/utils`   | `internal/string_utils` or `internal/file_utils` |
+| `internal/feature` | `internal/watchdog`                              |
 
 ## Zero Allocation Policy
 
-Quench targets performance-critical environments. Avoid allocations where possible.
+ForgeZero targets performance-critical environments. Avoid allocations where possible.
 
 ### Forbidden Patterns (if avoidable)
 
@@ -317,14 +316,13 @@ grep -r "fmt.Println\|fmt.Printf\|log.Print\|println(" internal/ cmd/ --include=
 
 Attach test output to your PR.
 
-
 ## Rules for External Contributors
 
 To protect the project's long-term maintainability and code quality, the following rules apply:
 
 - **No AI-generated code** — code that is obviously machine-generated without human review will be rejected. We can tell.
 - **Plagiarism is forbidden** — copying code or documentation from other contributors (or from external sources) without attribution is grounds for immediate PR closure and a permanent ban.
-- **You must build and test locally** — if you cannot build `qh` on your machine, do not open a PR. Figure out the build process first.
+- **You must build and test locally** — if you cannot build `fz` on your machine, do not open a PR. Figure out the build process first.
 - **No "drive-by" PRs** — every PR must include tests and documentation (if applicable). Skeleton PRs without content will be closed.
 
 Violations will be reported to GitHub if repeated.
@@ -339,15 +337,15 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 <type>: <short imperative summary>
 ```
 
-| Type       | When to use                                      |
-|------------|--------------------------------------------------|
-| `feat`     | A new user-facing feature                        |
-| `fix`      | A bug fix                                        |
-| `test`     | Adding or improving tests                        |
-| `docs`     | Documentation changes only                      |
-| `refactor` | Code restructuring without behaviour change      |
-| `chore`    | Tooling, CI, or dependency updates              |
-| `perf`     | Performance improvements                         |
+| Type       | When to use                                 |
+| ---------- | ------------------------------------------- |
+| `feat`     | A new user-facing feature                   |
+| `fix`      | A bug fix                                   |
+| `test`     | Adding or improving tests                   |
+| `docs`     | Documentation changes only                  |
+| `refactor` | Code restructuring without behaviour change |
+| `chore`    | Tooling, CI, or dependency updates          |
+| `perf`     | Performance improvements                    |
 
 **Examples:**
 
@@ -370,8 +368,8 @@ Commit messages are part of the project's permanent history. Write them as if th
 3. **Verify** — `go test -race ./...`, `go vet ./...`, and `staticcheck ./...` must all pass
 4. **Update documentation** — if your change affects behaviour visible to users, update the relevant docs
 5. **Open the PR** with a clear title (following commit convention) and a description that explains:
-   - *What* changed
-   - *Why* it was changed
+   - _What_ changed
+   - _Why_ it was changed
    - Any relevant context or trade-offs
 
 PRs that lack tests, break existing tests, or do not follow code standards will be returned for revision before review begins.
@@ -394,7 +392,7 @@ A good feature proposal includes:
 
 When filing a bug report, include the following:
 
-- **`qh` version** — output of `qh -version`
+- **`fz` version** — output of `fz -version`
 - **Operating system and architecture** — e.g. `Linux amd64`, `macOS arm64`
 - **Steps to reproduce** — minimal, complete, and unambiguous
 - **Expected behaviour** — what should have happened
@@ -410,6 +408,6 @@ By submitting a contribution, you agree that your work will be licensed under th
 
 ---
 
-*Thank you for taking the time to contribute to `qh`.*
+_Thank you for taking the time to contribute to `fz`._
 
 **(c) alexvoste**

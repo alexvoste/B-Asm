@@ -4,7 +4,7 @@ The project includes examples for simple C/assembly builds and for experimentati
 
 ## Example 1: simple assembly build
 
-A small assembly project can be built directly by pointing Quench at a source directory or a single file.
+A small assembly project can be built directly by pointing ForgeZero at a source directory or a single file.
 
 ## Example 2: toolchain customization
 

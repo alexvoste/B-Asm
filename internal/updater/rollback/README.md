@@ -26,13 +26,13 @@ second `-rollback` returns to where you started. Works fully offline.
 
 ### -rollback-to <version>
 
-Downloads the requested release for the current OS/arch from the Quench
+Downloads the requested release for the current OS/arch from the ForgeZero
 GitHub releases and installs it over the running binary using the updater's
 install path. The leading `v` is optional.
 
 ```bash
-qh -rollback
-qh -rollback-to 5.1.0
+ fz -rollback
+ fz -rollback-to 5.1.0
 ```
 
 ### Notes
@@ -44,7 +44,7 @@ qh -rollback-to 5.1.0
   tests, so the logic is verified without network or root.
 
 ```
- * Copyright (c) 2026 Quench-cli
+ * Copyright (c) 2026 ForgeZero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -47,6 +47,31 @@ func TestDepBuilderRunCustomStepsExecutesCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	if string(data) != "mylib" {
+		t.Fatalf("unexpected output: %q", string(data))
+	}
+}
+
+func TestDepBuilderRunCustomStepsWithNilContext(t *testing.T) {
+	dir := t.TempDir()
+	outFile := filepath.Join(dir, "custom.out")
+	cfg := &config.Config{
+		DepBuild: config.DepBuildConfig{
+			Steps: []config.BuildStep{{
+				Command: "printf '%s' ok > custom.out",
+			}},
+		},
+	}
+
+	db := NewDepBuilder(nil, dir, "mylib", cfg, nil, false)
+	if err := db.runCustomSteps(); err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := os.ReadFile(outFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "ok" {
 		t.Fatalf("unexpected output: %q", string(data))
 	}
 }

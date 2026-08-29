@@ -1,6 +1,6 @@
 # Getting started
 
-This section is the entry point for new users. It explains how to install Quench, create a minimal project, and perform the first successful build.
+This section is the entry point for new users. It explains how to install ForgeZero, create a minimal project, and perform the first successful build.
 
 ## What you will find here
 

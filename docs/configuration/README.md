@@ -1,6 +1,6 @@
 # Configuration model
 
-Quench uses a configuration layer to translate project intent into build actions. The important design choice is that configuration is explicit and composable, not hidden in an imperative build script.
+ForgeZero uses a configuration layer to translate project intent into build actions. The important design choice is that configuration is explicit and composable, not hidden in an imperative build script.
 
 ## How configuration is loaded
 
@@ -20,4 +20,4 @@ Configuration can define:
 
 ## Why the config is structured this way
 
-The config system is intentionally broad because Quench needs to support both simple projects and highly customized toolchain setups. The design preserves the ability to grow from a one-file experiment to an advanced embedded or systems build without switching systems.
+The config system is intentionally broad because ForgeZero needs to support both simple projects and highly customized toolchain setups. The design preserves the ability to grow from a one-file experiment to an advanced embedded or systems build without switching systems.

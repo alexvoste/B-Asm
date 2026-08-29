@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,6 +110,9 @@ func ApplyConfigToFlags(cfg *config.Config, flags *Flags) {
 
 	cfg.Profile = flags.ProfileFlag
 	p := profiles.ParseUserProfile(cfg.Profile)
+	if flags.Jobs <= 0 && cfg.Concurrency.Workers > 0 {
+		flags.Jobs = cfg.Concurrency.Workers
+	}
 	flags.Jobs = p.EffectiveJobs(flags.Jobs)
 
 	if cfg.OptimizationLevel == 0 {

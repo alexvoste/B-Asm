@@ -1,6 +1,6 @@
 # Build workflow
 
-A typical Quench workflow is straightforward:
+A typical ForgeZero workflow is straightforward:
 
 1. Initialize or configure a project.
 2. Point the build system at a source tree or source file.
@@ -10,10 +10,10 @@ A typical Quench workflow is straightforward:
 
 ## Typical project flow
 
-- `qh init` creates a starter configuration and ignore file.
-- `qh -dir src -out app` builds a project from a source directory.
-- `qh -watch` turns the build into a continuously refreshing loop while editing.
-- `qh -clean` removes generated artifacts.
+- `fz init` creates a starter configuration and ignore file.
+- `fz -dir src -out app` builds a project from a source directory.
+- `fz -watch` turns the build into a continuously refreshing loop while editing.
+- `fz -clean` removes generated artifacts.
 
 ## Why this workflow works
 

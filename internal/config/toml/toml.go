@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,20 +18,13 @@
 package toml
 
 import (
-	"strings"
-	"unsafe"
+	"bytes"
 
 	burntsushi "github.com/BurntSushi/toml"
 )
 
 func Unmarshal(data []byte, v interface{}) error {
-	var input string
-	if len(data) > 0 {
-		input = unsafe.String(&data[0], len(data))
-	}
-	var reader strings.Reader
-	reader.Reset(input)
-	if _, err := burntsushi.NewDecoder(&reader).Decode(v); err != nil {
+	if _, err := burntsushi.NewDecoder(bytes.NewReader(data)).Decode(v); err != nil {
 		return err
 	}
 	return nil

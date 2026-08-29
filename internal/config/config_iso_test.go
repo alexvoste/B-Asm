@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -95,5 +95,25 @@ func TestISOConfigExpand(t *testing.T) {
 	}
 	if cfg.ISO.VolumeID != "distro" {
 		t.Errorf("expected distro, got %q", cfg.ISO.VolumeID)
+	}
+}
+
+func TestBuildConfigExpand(t *testing.T) {
+	cfg := &Config{
+		Variables: map[string]string{"ROOT": "/opt/toolchain", "MODE": "release"},
+		Compiler:  CompilerConfig{Path: "${ROOT}/bin/cc"},
+		Preprocess: PreprocessConfig{
+			Inputs:  []string{"${ROOT}/input.c"},
+			Defines: map[string]string{"BUILD_MODE": "${MODE}"},
+		},
+		DepBuild: DepBuildConfig{
+			Environment: map[string]string{"CC": "${ROOT}/bin/cc"},
+			Steps:       []BuildStep{{With: map[string]string{"MODE": "${MODE}"}}},
+		},
+	}
+	cfg.expand()
+
+	if cfg.Compiler.Path != "/opt/toolchain/bin/cc" || cfg.Preprocess.Inputs[0] != "/opt/toolchain/input.c" || cfg.Preprocess.Defines["BUILD_MODE"] != "release" || cfg.DepBuild.Environment["CC"] != "/opt/toolchain/bin/cc" || cfg.DepBuild.Steps[0].With["MODE"] != "release" {
+		t.Fatalf("build config variables were not expanded: %+v", cfg)
 	}
 }

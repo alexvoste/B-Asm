@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -241,8 +241,8 @@ func ensureContextTimeout(ctx context.Context, min time.Duration) (context.Conte
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	if deadline, ok := ctx.Deadline(); ok {
-		if time.Until(deadline) >= min {
+	if _, ok := ctx.Deadline(); ok {
+		if ctx.Err() == nil {
 			return ctx, func() {}
 		}
 		ctx = context.Background()
@@ -401,7 +401,11 @@ func Link(ctx context.Context, obj, bin string, verbose bool, mode string, noSym
 }
 
 func LinkMultiple(ctx context.Context, objFiles []string, bin string, verbose bool, mode string, noSymbolCheck bool, sanitize bool, strict bool, libs []string) error {
-	return LinkMultipleParallel(ctx, objFiles, bin, verbose, mode, noSymbolCheck, sanitize, strict, libs, runtime.GOMAXPROCS(0))
+	jobs := runtime.GOMAXPROCS(0)
+	if cfg := utils.ConfigFromContext(ctx); cfg != nil && cfg.Concurrency.Workers > 0 {
+		jobs = cfg.Concurrency.Workers
+	}
+	return LinkMultipleParallel(ctx, objFiles, bin, verbose, mode, noSymbolCheck, sanitize, strict, libs, jobs)
 }
 
 func writeStderr(s string) {

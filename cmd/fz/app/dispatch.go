@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,11 +122,11 @@ func HandleReverse(flags *cli.Flags) bool {
 		stdio.WriteFmt(2, "failed to marshal config: %v\n", err)
 		cli.Exit(2)
 	}
-	if err := os.WriteFile(".qh.yaml", data, 0o644); err != nil {
-		stdio.WriteFmt(2, "failed to write .qh.yaml: %v\n", err)
+	if err := os.WriteFile(".fz.yaml", data, 0o644); err != nil {
+		stdio.WriteFmt(2, "failed to write .fz.yaml: %v\n", err)
 		cli.Exit(2)
 	}
-	stdio.WriteFmt(1, "Generated .qh.yaml from %s\n", flags.OldReverseFile)
+	stdio.WriteFmt(1, "Generated .fz.yaml from %s\n", flags.OldReverseFile)
 	return true
 }
 

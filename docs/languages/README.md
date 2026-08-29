@@ -1,6 +1,6 @@
 # Languages and source handling
 
-Quench is not a new compiler for every supported language. Instead, it acts as a build orchestrator that routes each input to the right backend.
+ForgeZero is not a new compiler for every supported language. Instead, it acts as a build orchestrator that routes each input to the right backend.
 
 ## Supported language families
 

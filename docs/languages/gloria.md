@@ -1,6 +1,6 @@
 # Gloria
 
-Gloria is a small custom language implemented inside the Quench project. It is not intended to replace C or assembly for general-purpose work. Instead, it is a compact, low-level language for situations where direct control over generated code is useful.
+Gloria is a small custom language implemented inside the ForgeZero project. It is not intended to replace C or assembly for general-purpose work. Instead, it is a compact, low-level language for situations where direct control over generated code is useful.
 
 ## Syntax model
 

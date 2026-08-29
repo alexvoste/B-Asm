@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -179,12 +179,12 @@ func TestFindConfigs(t *testing.T) {
 	if system != "" || user != "" || local != "" {
 		t.Errorf("found unexpected configs: system=%s user=%s local=%s", system, user, local)
 	}
-	if err := os.WriteFile(".qh.toml", []byte{}, 0o644); err != nil {
+	if err := os.WriteFile(".fz.toml", []byte{}, 0o644); err != nil {
 		t.Fatal(err)
 	}
 	_, _, local = FindConfigs()
-	if local != ".qh.toml" {
-		t.Errorf("expected .qh.toml, got %s", local)
+	if local != ".fz.toml" {
+		t.Errorf("expected .fz.toml, got %s", local)
 	}
 }
 
@@ -258,7 +258,7 @@ func TestLoadMerged(t *testing.T) {
 	if cfg.SourceDir != "" {
 		t.Error("expected empty config")
 	}
-	if err := os.WriteFile(".qh.yaml", []byte("source_dir: ./src"), 0o644); err != nil {
+	if err := os.WriteFile(".fz.yaml", []byte("source_dir: ./src"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	cfg, err = LoadMerged("")
@@ -309,7 +309,7 @@ func TestLoadTOMLConfigIncludesRelativeFiles(t *testing.T) {
 
 func TestLoadTOMLEnumValues(t *testing.T) {
 	dir := t.TempDir()
-	cfgPath := filepath.Join(dir, ".qh.toml")
+	cfgPath := filepath.Join(dir, ".fz.toml")
 	content := "isolation = \"strict\"\ncache_mode = \"ram\"\n"
 	if err := os.WriteFile(cfgPath, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
@@ -329,7 +329,7 @@ func TestLoadTOMLEnumValues(t *testing.T) {
 func TestLoadTOMLEnvironmentVariables(t *testing.T) {
 	t.Setenv("FZ_TEST_OUTPUT", "mars")
 	dir := t.TempDir()
-	cfgPath := filepath.Join(dir, ".qh.toml")
+	cfgPath := filepath.Join(dir, ".fz.toml")
 	content := "output = \"${FZ_TEST_OUTPUT}\"\n"
 	if err := os.WriteFile(cfgPath, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
@@ -476,10 +476,10 @@ func TestDefaultConfigPath(t *testing.T) {
 	if path := DefaultConfigPath(); path != "" {
 		t.Errorf("expected empty, got %s", path)
 	}
-	if err := os.WriteFile(".qh.yaml", []byte{}, 0o644); err != nil {
+	if err := os.WriteFile(".fz.yaml", []byte{}, 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if path := DefaultConfigPath(); path != ".qh.yaml" {
-		t.Errorf("expected .qh.yaml, got %s", path)
+	if path := DefaultConfigPath(); path != ".fz.yaml" {
+		t.Errorf("expected .fz.yaml, got %s", path)
 	}
 }

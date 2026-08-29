@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Quench CI/CD Pipeline Validator"
+echo "ForgeZero CI/CD Pipeline Validator"
 echo "===================================="
 
 CHECKS_PASSED=0
@@ -60,8 +60,8 @@ go test -timeout 5m ./... > /dev/null 2>&1 && {
 section "Build Verification"
 ARCHS=("amd64" "arm64")
 for arch in "${ARCHS[@]}"; do
-  CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -o /tmp/qh-$arch ./cmd/fz 2>/dev/null && {
-    SIZE=$(stat -c%s "/tmp/qh-$arch" 2>/dev/null || stat -f%z "/tmp/qh-$arch")
+  CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -o /tmp/fz-$arch ./cmd/fz 2>/dev/null && {
+    SIZE=$(stat -c%s "/tmp/fz-$arch" 2>/dev/null || stat -f%z "/tmp/fz-$arch")
     echo "✓ linux/$arch: $(numfmt --to=iec $SIZE 2>/dev/null || echo $SIZE bytes)"
     ((CHECKS_PASSED++))
   } || {

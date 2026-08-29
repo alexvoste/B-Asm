@@ -1,6 +1,6 @@
 # FZP preprocessor
 
-Quench includes a lightweight preprocessor named FZP. It is not a full C preprocessor replacement, but it covers the subset that is most useful for build-time configuration and conditional inclusion.
+ForgeZero includes a lightweight preprocessor named FZP. It is not a full C preprocessor replacement, but it covers the subset that is most useful for build-time configuration and conditional inclusion.
 
 ## Supported directives
 

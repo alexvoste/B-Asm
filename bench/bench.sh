@@ -4,8 +4,8 @@ set -euo pipefail
 TEST_DIR="benchmark_test"
 NUM_MODULES=2500
 
-echo "🛠️  Quench vs NASM/Make Benchmark Script"
-echo "=========================================="
+echo "🛠️  ForgeZero vs NASM/Make Benchmark Script"
+echo "========================================="
 
 for cmd in hyperfine nasm ld make; do
   command -v $cmd >/dev/null 2>&1 || {
@@ -13,8 +13,8 @@ for cmd in hyperfine nasm ld make; do
     exit 1
   }
 done
-if [[ ! -x "./qh" ]]; then
-  echo "❌ ./qh not found or not executable. Run build.sh from Quench root."
+if [[ ! -x "./fz" ]]; then
+  echo "❌ ./fz not found or not executable. Run build.sh from ForgeZero root."
   exit 1
 fi
 
@@ -61,9 +61,9 @@ echo "📝 Generating Makefile..."
 echo "🔍 Verifying builds (dry-run)..."
 cd "$TEST_DIR"
 
-echo "  → Quench..."
-if ! ../qh -dir . -out fz_out -verbose; then
-  echo "❌ Quench build failed. Check output above."
+echo "  → ForgeZero..."
+if ! ../fz -dir . -out fz_out -verbose; then
+  echo "❌ ForgeZero build failed. Check output above."
   exit 1
 fi
 rm -rf fz_out .fz_objs
@@ -83,7 +83,7 @@ cd "$TEST_DIR"
 
 hyperfine --warmup 3 \
   --prepare "make clean && rm -rf .fz_objs fz_out" \
-  "../qh -dir . -out fz_out -toolchain clang -j $(nproc)" \
+  "../fz -dir . -out fz_out -toolchain clang -j $(nproc)" \
   "make -j $(nproc)"
 
 cd ..

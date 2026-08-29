@@ -1,6 +1,6 @@
 # Error handling and exit codes
 
-Quench aims to surface useful errors instead of silently guessing. When a build fails, the system tries to report the root cause in the context of the build step that failed.
+ForgeZero aims to surface useful errors instead of silently guessing. When a build fails, the system tries to report the root cause in the context of the build step that failed.
 
 ## What to expect
 

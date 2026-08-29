@@ -1,6 +1,6 @@
 # Architecture
 
-The architecture of Quench is intentionally simple: a thin CLI entrypoint collects intent, a config layer normalizes it, and a build engine turns that configuration into a concrete set of compiler, assembler, and linker actions.
+The architecture of ForgeZero is intentionally simple: a thin CLI entrypoint collects intent, a config layer normalizes it, and a build engine turns that configuration into a concrete set of compiler, assembler, and linker actions.
 
 ## Core flow
 
@@ -12,7 +12,7 @@ The architecture of Quench is intentionally simple: a thin CLI entrypoint collec
 
 ## Why this shape?
 
-Quench is designed as a coordinator rather than a monolithic compiler. That gives it three practical advantages:
+ForgeZero is designed as a coordinator rather than a monolithic compiler. That gives it three practical advantages:
 
 - It can support many source kinds without reimplementing each language.
 - It can stay fast by keeping the orchestration logic in one place and relying on upstream toolchains for the real compilation work.

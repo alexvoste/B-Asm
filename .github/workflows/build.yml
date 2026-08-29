@@ -32,9 +32,9 @@ jobs:
           mkdir -p /tmp/go-build-cache /tmp/go-mod-cache
           go clean -cache
       - name: Run Go tests
-        run: go test -v $(go list ./... | grep -v qh/internal/musl)
+        run: go test -v $(go list ./... | grep -v fz/internal/musl)
       - name: Run Go coverage
-        run: go test -cover $(go list ./... | grep -v qh/internal/musl)
+        run: go test -cover $(go list ./... | grep -v fz/internal/musl)
 
   race-detector:
     runs-on: ubuntu-latest
@@ -57,7 +57,7 @@ jobs:
           echo "GOMODCACHE=/tmp/go-mod-cache" >> $GITHUB_ENV
           mkdir -p /tmp/go-build-cache /tmp/go-mod-cache
       - name: Run Go race detector
-        run: go test -race -cpu 4 $(go list ./... | grep -v qh/internal/musl)
+        run: go test -race -cpu 4 $(go list ./... | grep -v fz/internal/musl)
 
   benchmarks:
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
           mkdir -p /tmp/go-build-cache /tmp/go-mod-cache
           go clean -cache
       - name: Benchmark Go Code
-        run: go test -bench=. -benchmem $(go list ./... | grep -v qh/internal/musl)
+        run: go test -bench=. -benchmem $(go list ./... | grep -v fz/internal/musl)
 
   build:
     runs-on: ubuntu-latest
@@ -108,13 +108,13 @@ jobs:
         run: |
           set -e
           mkdir -p release
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/qh-linux-amd64 ./cmd/fz
-          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/qh-linux-arm64 ./cmd/fz
-          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/qh-windows-amd64.exe ./cmd/fz
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/qh-darwin-amd64 ./cmd/fz
-          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/qh-darwin-arm64 ./cmd/fz
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/fz-linux-amd64 ./cmd/fz
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/fz-linux-arm64 ./cmd/fz
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/fz-windows-amd64.exe ./cmd/fz
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/fz-darwin-amd64 ./cmd/fz
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -p 4 -buildvcs=false -ldflags="-s -w" -o release/fz-darwin-arm64 ./cmd/fz
           ls -la release/
       - uses: actions/upload-artifact@v4
         with:
-          name: qh-binaries
+          name: fz-binaries
           path: release/

@@ -1,4 +1,4 @@
-## 🦎 Quench - tests guide
+## 🦎 ForgeZero - tests guide
 
 ![Gif](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHcyM2tydTFydDE5NHpxZm9mZThzYnFoMmVhMjBkZ25xYjZ0ZzF4OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l4FGv2kpISgEny6Dm/giphy.gif)
 
@@ -6,7 +6,7 @@
 
 Welcome back, you already know now crutical testing is for projects. The main key things testing lets you catch are bugs when using a module, race detection, coverage, and full logging of everything going on so you can trace the execution.
 
-The Quench project has all kinds of tests, and as you can see in some modules there's more test files than actual logic files.
+The ForgeZero project has all kinds of tests, and as you can see in some modules there's more test files than actual logic files.
 
 We're all about load (stress) tests, mocks, and unit tests here.
 
@@ -41,7 +41,7 @@ For Debian/Ubuntu-based systems, use apt; for Fedora/RHEL, use dnf or yum; for m
 
 Version constraints are non-strict—later releases are expected to work.
 
-**Zig** – version 0.16.0 (note: still pre-1.0). This is a hard dependency for cross-compilation workflows. Furthermore, Quench—the project's build system—uses zig cc and zig c++ as its default C/C++ compiler backends.
+**Zig** – version 0.16.0 (note: still pre-1.0). This is a hard dependency for cross-compilation workflows. Furthermore, ForgeZero—the project's build system—uses zig cc and zig c++ as its default C/C++ compiler backends.
 
 ## 🛠 Description of the primary test commands.
 

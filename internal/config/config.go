@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -378,6 +378,8 @@ func (c *Config) expand() {
 	c.OutObj = variables.ExpandString(c.OutObj, vars)
 	c.Mode = variables.ExpandString(c.Mode, vars)
 	c.Toolchain = variables.ExpandString(c.Toolchain, vars)
+	c.Linker = variables.ExpandString(c.Linker, vars)
+	c.Compiler.Path = variables.ExpandString(c.Compiler.Path, vars)
 	c.IgnoreFile = variables.ExpandString(c.IgnoreFile, vars)
 	variables.ExpandSlice(c.Exclude, vars)
 	variables.ExpandSlice(c.Include, vars)
@@ -387,6 +389,12 @@ func (c *Config) expand() {
 	variables.ExpandSlice(c.Flags.Asm, vars)
 	variables.ExpandSlice(c.Flags.Cc, vars)
 	variables.ExpandSlice(c.Flags.Ld, vars)
+	variables.ExpandSlice(c.Preprocess.Inputs, vars)
+	variables.ExpandSlice(c.Preprocess.Outputs, vars)
+	variables.ExpandMap(c.Preprocess.Defines, vars)
+	variables.ExpandMap(c.DepBuild.Environment, vars)
+	variables.ExpandSlice(c.AutoBuild.BuildOrder, vars)
+	variables.ExpandMap(c.AutoBuild.DefaultEnvironment, vars)
 	variables.ExpandMap(c.ToolChecksums, vars)
 	variables.ExpandMap(c.ToolchainSettings.ToolPaths, vars)
 	variables.ExpandSlice(c.ToolchainSettings.SearchPriority, vars)
@@ -406,6 +414,14 @@ func (c *Config) expand() {
 		c.DepBuild.Steps[i].Run = variables.ExpandString(c.DepBuild.Steps[i].Run, vars)
 		variables.ExpandSlice(c.DepBuild.Steps[i].Inputs, vars)
 		variables.ExpandSlice(c.DepBuild.Steps[i].Outputs, vars)
+		variables.ExpandMap(c.DepBuild.Steps[i].With, vars)
+	}
+	for i := range c.DepBuild.StepSets {
+		c.DepBuild.StepSets[i].Command = variables.ExpandString(c.DepBuild.StepSets[i].Command, vars)
+		c.DepBuild.StepSets[i].Run = variables.ExpandString(c.DepBuild.StepSets[i].Run, vars)
+		variables.ExpandSlice(c.DepBuild.StepSets[i].Inputs, vars)
+		variables.ExpandSlice(c.DepBuild.StepSets[i].Outputs, vars)
+		variables.ExpandMap(c.DepBuild.StepSets[i].With, vars)
 	}
 	c.Isolation = IsolationMode(variables.ExpandString(string(c.Isolation), vars))
 	c.ISO.SourceDir = variables.ExpandString(c.ISO.SourceDir, vars)
@@ -421,13 +437,13 @@ func (c *Config) needsExpand() bool {
 	if len(c.Variables) > 0 {
 		return true
 	}
-	if containsDollar(c.Name) || containsDollar(c.Profile) || containsDollar(c.Target) || containsDollar(c.Sysroot) || containsDollar(c.SourceDir) || containsDollar(c.SourceFile) || containsDollar(c.Output) || containsDollar(c.OutObj) || containsDollar(c.Mode) || containsDollar(c.Toolchain) || containsDollar(c.IgnoreFile) {
+	if containsDollar(c.Name) || containsDollar(c.Profile) || containsDollar(c.Target) || containsDollar(c.Sysroot) || containsDollar(c.SourceDir) || containsDollar(c.SourceFile) || containsDollar(c.Output) || containsDollar(c.OutObj) || containsDollar(c.Mode) || containsDollar(c.Toolchain) || containsDollar(c.Linker) || containsDollar(c.Compiler.Path) || containsDollar(c.IgnoreFile) {
 		return true
 	}
-	if containsDollarSlice(c.SourceDirs) || containsDollarSlice(c.SourceFiles) || containsDollarSlice(c.Exclude) || containsDollarSlice(c.Include) || containsDollarSlice(c.Scripts) || containsDollarSlice(c.Libs) || containsDollarSlice(c.AuditIgnore) || containsDollarSlice(c.Flags.Asm) || containsDollarSlice(c.Flags.Cc) || containsDollarSlice(c.Flags.Ld) || containsDollarSlice(c.ToolchainSettings.SearchPriority) || containsDollarSlice(c.ToolchainSettings.EnvAllow) || containsDollarSlice(c.ISO.CustomArgs) {
+	if containsDollarSlice(c.SourceDirs) || containsDollarSlice(c.SourceFiles) || containsDollarSlice(c.Exclude) || containsDollarSlice(c.Include) || containsDollarSlice(c.Scripts) || containsDollarSlice(c.Libs) || containsDollarSlice(c.AuditIgnore) || containsDollarSlice(c.Flags.Asm) || containsDollarSlice(c.Flags.Cc) || containsDollarSlice(c.Flags.Ld) || containsDollarSlice(c.Preprocess.Inputs) || containsDollarSlice(c.Preprocess.Outputs) || containsDollarSlice(c.AutoBuild.BuildOrder) || containsDollarSlice(c.ToolchainSettings.SearchPriority) || containsDollarSlice(c.ToolchainSettings.EnvAllow) || containsDollarSlice(c.ISO.CustomArgs) {
 		return true
 	}
-	if containsDollarMap(c.ToolChecksums) || containsDollarMap(c.ToolchainSettings.ToolPaths) {
+	if containsDollarMap(c.ToolChecksums) || containsDollarMap(c.ToolchainSettings.ToolPaths) || containsDollarMap(c.Preprocess.Defines) || containsDollarMap(c.DepBuild.Environment) || containsDollarMap(c.AutoBuild.DefaultEnvironment) {
 		return true
 	}
 	if containsDollar(c.Hooks.OnFailure) {
@@ -444,7 +460,12 @@ func (c *Config) needsExpand() bool {
 		}
 	}
 	for i := range c.DepBuild.Steps {
-		if containsDollar(c.DepBuild.Steps[i].Command) || containsDollar(c.DepBuild.Steps[i].Run) || containsDollarSlice(c.DepBuild.Steps[i].Inputs) || containsDollarSlice(c.DepBuild.Steps[i].Outputs) {
+		if containsDollar(c.DepBuild.Steps[i].Command) || containsDollar(c.DepBuild.Steps[i].Run) || containsDollarSlice(c.DepBuild.Steps[i].Inputs) || containsDollarSlice(c.DepBuild.Steps[i].Outputs) || containsDollarMap(c.DepBuild.Steps[i].With) {
+			return true
+		}
+	}
+	for i := range c.DepBuild.StepSets {
+		if containsDollar(c.DepBuild.StepSets[i].Command) || containsDollar(c.DepBuild.StepSets[i].Run) || containsDollarSlice(c.DepBuild.StepSets[i].Inputs) || containsDollarSlice(c.DepBuild.StepSets[i].Outputs) || containsDollarMap(c.DepBuild.StepSets[i].With) {
 			return true
 		}
 	}
@@ -486,9 +507,6 @@ func (c *Config) fillDefaults() {
 	if c.Profile == "" {
 		c.Profile = "balanced"
 	}
-	if !c.AutoBuildDeps {
-		c.AutoBuildDeps = true
-	}
 	if c.Toolchain == "" {
 		c.Toolchain = "auto"
 	}
@@ -496,7 +514,7 @@ func (c *Config) fillDefaults() {
 		c.Isolation = IsolationNone
 	}
 	if c.IgnoreFile == "" {
-		c.IgnoreFile = ".qhignore"
+		c.IgnoreFile = ".fzignore"
 	}
 	if c.CacheMode == "" {
 		c.CacheMode = CacheModeDisk
@@ -576,7 +594,7 @@ func (c *Config) Validate() error {
 		return NewErrorDetail(ErrorInvalidOverride, "cache_ram_mb must be non-negative")
 	}
 	if c.IgnoreFile == "" {
-		c.IgnoreFile = ".qhignore"
+		c.IgnoreFile = ".fzignore"
 	}
 	if len(c.BuildRules) > 0 {
 		outputs := make(map[string]struct{}, len(c.BuildRules)*2)
@@ -1157,6 +1175,12 @@ func (c *Config) Merge(other *Config) {
 	if other.Mode != "" {
 		c.Mode = other.Mode
 	}
+	if other.Toolchain != "" {
+		c.Toolchain = other.Toolchain
+	}
+	if other.Linker != "" {
+		c.Linker = other.Linker
+	}
 	if other.Profile != "" {
 		c.Profile = other.Profile
 	}
@@ -1184,6 +1208,9 @@ func (c *Config) Merge(other *Config) {
 	}
 	if other.ConfigOnly {
 		c.ConfigOnly = true
+	}
+	if other.AutoBuildDeps {
+		c.AutoBuildDeps = true
 	}
 	if len(other.Exclude) > 0 {
 		c.Exclude = mergeStrings(c.Exclude, other.Exclude)
@@ -1285,6 +1312,9 @@ func (c *Config) Merge(other *Config) {
 	if len(other.DepBuild.Steps) > 0 {
 		c.DepBuild.Steps = append(c.DepBuild.Steps, other.DepBuild.Steps...)
 	}
+	if len(other.DepBuild.StepSets) > 0 {
+		c.DepBuild.StepSets = append(c.DepBuild.StepSets, other.DepBuild.StepSets...)
+	}
 	if len(other.DepBuild.ExcludeFiles) > 0 {
 		c.DepBuild.ExcludeFiles = append(c.DepBuild.ExcludeFiles, other.DepBuild.ExcludeFiles...)
 	}
@@ -1308,6 +1338,39 @@ func (c *Config) Merge(other *Config) {
 	}
 	if other.CacheRAMMB > 0 {
 		c.CacheRAMMB = other.CacheRAMMB
+	}
+	if other.DeterministicStrip {
+		c.DeterministicStrip = true
+	}
+	if other.Preprocess.Enabled {
+		c.Preprocess.Enabled = true
+	}
+	if len(other.Preprocess.Inputs) > 0 {
+		c.Preprocess.Inputs = mergeStrings(c.Preprocess.Inputs, other.Preprocess.Inputs)
+	}
+	if len(other.Preprocess.Outputs) > 0 {
+		c.Preprocess.Outputs = mergeStrings(c.Preprocess.Outputs, other.Preprocess.Outputs)
+	}
+	if len(other.Preprocess.Defines) > 0 {
+		c.Preprocess.Defines = mergeStringMap(c.Preprocess.Defines, other.Preprocess.Defines)
+	}
+	if len(other.AutoBuild.BuildOrder) > 0 {
+		c.AutoBuild.BuildOrder = mergeStrings(c.AutoBuild.BuildOrder, other.AutoBuild.BuildOrder)
+	}
+	if len(other.AutoBuild.DefaultEnvironment) > 0 {
+		c.AutoBuild.DefaultEnvironment = mergeStringMap(c.AutoBuild.DefaultEnvironment, other.AutoBuild.DefaultEnvironment)
+	}
+	if other.AutoBuild.Enabled {
+		c.AutoBuild.Enabled = true
+	}
+	if other.AutoBuild.LogLevel != "" {
+		c.AutoBuild.LogLevel = other.AutoBuild.LogLevel
+	}
+	if other.AutoBuild.ContinueOnError {
+		c.AutoBuild.ContinueOnError = true
+	}
+	if other.AutoBuild.DefaultSkipTests {
+		c.AutoBuild.DefaultSkipTests = true
 	}
 	c.mergeISO(&other.ISO)
 }
@@ -1355,7 +1418,7 @@ func (c *Config) mergeISO(other *ISOConfig) {
 }
 
 func FindConfigs() (system, user, local string) {
-	systemPaths := []string{"/etc/github.com/forgezero-cli/ForgeZero/config.toml", "/etc/qh.toml", "/etc/fz.toml", "/etc/github.com/forgezero-cli/ForgeZero/config.yaml", "/etc/qh.yaml", "/etc/fz.yaml"}
+	systemPaths := []string{"/etc/github.com/forgezero-cli/ForgeZero/config.toml", "/etc/fz.toml", "/etc/fz.toml", "/etc/github.com/forgezero-cli/ForgeZero/config.yaml", "/etc/fz.yaml", "/etc/fz.yaml"}
 	for _, p := range systemPaths {
 		if _, err := os.Stat(p); err == nil {
 			system = p
@@ -1365,12 +1428,12 @@ func FindConfigs() (system, user, local string) {
 	home, err := os.UserHomeDir()
 	if err == nil {
 		userPaths := []string{
-			filepath.Join(home, ".config", "qh", "config.toml"),
-			filepath.Join(home, ".qh.toml"),
 			filepath.Join(home, ".config", "fz", "config.toml"),
 			filepath.Join(home, ".fz.toml"),
-			filepath.Join(home, ".config", "qh", "config.yaml"),
-			filepath.Join(home, ".qh.yaml"),
+			filepath.Join(home, ".config", "fz", "config.toml"),
+			filepath.Join(home, ".fz.toml"),
+			filepath.Join(home, ".config", "fz", "config.yaml"),
+			filepath.Join(home, ".fz.yaml"),
 			filepath.Join(home, ".config", "fz", "config.yaml"),
 			filepath.Join(home, ".fz.yaml"),
 		}
@@ -1381,7 +1444,7 @@ func FindConfigs() (system, user, local string) {
 			}
 		}
 	}
-	localPaths := []string{".qh.toml", "qh.toml", ".fz.toml", "fz.toml", ".qh.yaml", "qh.yaml", ".fz.yaml", "fz.yaml", ".qh.yml", "qh.yml", ".fz.yml", "fz.yml"}
+	localPaths := []string{".fz.toml", "fz.toml", ".fz.toml", "fz.toml", ".fz.yaml", "fz.yaml", ".fz.yaml", "fz.yaml", ".fz.yml", "fz.yml", ".fz.yml", "fz.yml"}
 	for _, p := range localPaths {
 		if _, err := os.Stat(p); err == nil {
 			local = p
@@ -1405,9 +1468,9 @@ type loadResult struct {
 
 func LoadMerged(explicitPath string) (*Config, error) {
 	if explicitPath == "" {
-		if env := os.Getenv("QH_CONFIG_PATH"); env != "" {
+		if env := os.Getenv("FZ_CONFIG_PATH"); env != "" {
 			explicitPath = env
-		} else if env := os.Getenv("QH_CONFIG"); env != "" {
+		} else if env := os.Getenv("FZ_CONFIG"); env != "" {
 			explicitPath = env
 		}
 	}
@@ -1474,13 +1537,13 @@ func LoadMerged(explicitPath string) (*Config, error) {
 }
 
 func DefaultConfigPath() string {
-	if env := os.Getenv("QH_CONFIG_PATH"); env != "" {
+	if env := os.Getenv("FZ_CONFIG_PATH"); env != "" {
 		return env
 	}
 	if env := os.Getenv("FZ_CONFIG_PATH"); env != "" {
 		return env
 	}
-	if env := os.Getenv("QH_CONFIG"); env != "" {
+	if env := os.Getenv("FZ_CONFIG"); env != "" {
 		return env
 	}
 	if env := os.Getenv("FZ_CONFIG"); env != "" {
@@ -1501,7 +1564,7 @@ func GenerateFromScan(root string) (*Config, error) {
 		}
 		if d.IsDir() {
 			name := d.Name()
-			if name == ".git" || name == ".qh_objs" || name == "build" || name == "vendor" {
+			if name == ".git" || name == ".fz_objs" || name == "build" || name == "vendor" {
 				return filepath.SkipDir
 			}
 			return nil

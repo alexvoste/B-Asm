@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -380,6 +380,12 @@ func BuildDir(ctx context.Context, dirs []string, outBin string, debug, verbose 
 			}
 		}
 	}
+	if cfg != nil {
+		ctx = utils.ContextWithConfig(ctx, cfg)
+		if jobs <= 0 && cfg.Concurrency.Workers > 0 {
+			jobs = cfg.Concurrency.Workers
+		}
+	}
 
 	if cfg != nil && len(cfg.Hooks.PreBuild) > 0 {
 		if err := RunHooks(ctx, cfg.Hooks.PreBuild); err != nil {
@@ -662,7 +668,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 					if !m.Match(matcherPath(src)) {
 						filtered = append(filtered, src)
 					} else if verbose {
-						_, _ = os.Stdout.WriteString("Ignoring file (from .qhignore): " + src + "\n")
+						_, _ = os.Stdout.WriteString("Ignoring file (from .fzignore): " + src + "\n")
 					}
 				}
 				srcFiles = filtered
@@ -670,7 +676,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 		}
 	}
 
-	objDir := joinPath(filepath.Dir(outBin), ".qh_objs")
+	objDir := joinPath(filepath.Dir(outBin), ".fz_objs")
 	generatedIncludeDir := joinPath(objDir, "include")
 	if err := utils.SecureMkdirAll(objDir); err != nil {
 		return nil, errors.New("cannot create obj dir: " + err.Error())
@@ -972,7 +978,7 @@ func buildDirInner(ctx context.Context, cfg *config.Config, dirs []string, outBi
 	}
 	sort.Strings(srcFiles)
 
-	cacheDir := joinPath(filepath.Dir(outBin), ".qh_cache")
+	cacheDir := joinPath(filepath.Dir(outBin), ".fz_cache")
 
 	effectiveCache := determineCacheMode(cfg, noCache)
 	var hashCache map[string]hashCacheEntry
@@ -1405,11 +1411,11 @@ func removeIfExists(path string, isDir bool, verbose bool) error {
 }
 
 func CleanDir(dir string, verbose bool) error {
-	objDir := joinPath(dir, ".qh_objs")
+	objDir := joinPath(dir, ".fz_objs")
 	if err := removeIfExists(objDir, true, verbose); err != nil {
 		return err
 	}
-	cacheDir := joinPath(dir, ".qh_cache")
+	cacheDir := joinPath(dir, ".fz_cache")
 	if err := removeIfExists(cacheDir, true, verbose); err != nil {
 		return err
 	}

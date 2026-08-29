@@ -1,6 +1,6 @@
 # Tests Artefacts 
-.qh_cache/
-.qh_objs/
+.fz_cache/
+.fz_objs/
 redis-server
 release-note.md
 fo.test
@@ -83,3 +83,6 @@ assets/
 /vendor/
 
 .clang-format
+
+.qh_cache/
+.qh_objs/

@@ -1,11 +1,11 @@
 # Quick start
 
-The fastest way to understand Quench is to build a tiny project and observe the pipeline.
+The fastest way to understand ForgeZero is to build a tiny project and observe the pipeline.
 
 ## Step 1: initialize a project
 
 ```bash
-qh -init
+ fz -init
 ```
 
 This creates a starter configuration and a small README scaffold.
@@ -13,12 +13,12 @@ This creates a starter configuration and a small README scaffold.
 ## Step 2: build a directory
 
 ```bash
-qh -dir ./src -out app
+ fz -dir ./src -out app
 ```
 
 ## Step 3: inspect the output
 
-If the build succeeds, Quench writes the requested binary and leaves behind any requested intermediate artifacts based on the configuration.
+If the build succeeds, ForgeZero writes the requested binary and leaves behind any requested intermediate artifacts based on the configuration.
 
 ## Why this feels simple
 

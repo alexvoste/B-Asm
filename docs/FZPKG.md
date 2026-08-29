@@ -1,6 +1,6 @@
-# Quench package manager
+# ForgeZero package manager
 
-Quench includes a lightweight package-management layer that can verify and install local packages after they have been signed and trusted.
+ForgeZero includes a lightweight package-management layer that can verify and install local packages after they have been signed and trusted.
 
 ## Trust model
 
@@ -14,10 +14,10 @@ This makes installation predictable and reduces the risk of accepting untrusted 
 
 ## Typical commands
 
-- `qh pm trust <key>`: add a key to the trusted-key store.
-- `qh pm keys`: list trusted keys.
-- `qh pm verify <package>`: verify a package manifest.
-- `qh pm install <package>`: install a package after verification.
+- `fz pm trust <key>`: add a key to the trusted-key store.
+- `fz pm keys`: list trusted keys.
+- `fz pm verify <package>`: verify a package manifest.
+- `fz pm install <package>`: install a package after verification.
 
 ## Why this exists
 

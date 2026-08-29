@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,14 +30,14 @@ This project was initialized with [ForgeZero](https://github.com/forgezero-cli/F
 
 ## How to build
 
-1. Edit .qh.toml to configure source directories, output name, etc.
+1. Edit .fz.toml to configure source directories, output name, etc.
 2. Run:
 
-    qh 
+    fz 
 
 or with custom flags:
 
-    qh -dir ./src -out myapp -verbose
+    fz -dir ./src -out myapp -verbose
 
 ## Build options
 
@@ -56,22 +56,22 @@ or with custom flags:
 - ` + "`-clean`" + ` – remove all build artifacts
 - ` + "`-format bin`" + ` – build flat binary (e.g., bootloader)
 
-## .qh.toml configuration
+## .fz.toml configuration
 
-See the generated .qh.toml file for all options. It supports:
+See the generated .fz.toml file for all options. It supports:
 - Multiple source directories (` + "`source_dirs`" + `)
 - Exact file list (` + "`source_files`" + `)
 - Exclude patterns (` + "`exclude`" + `) and include patterns (` + "`include`" + `)
 - Libraries (` + "`libs`" + `)
 - Custom flags for assembler, C compiler, linker
 
-## .qhignore
+## .fzignore
 
 You can list files/directories to ignore (like .gitignore). Syntax: glob patterns, e.g., ` + "`*.o`, `temp/`" + `.
 
 ## Example
 
-    qh -asm boot.asm -format bin -out boot.bin
+    fz -asm boot.asm -format bin -out boot.bin
     qemu-system-x86_64 -drive format=raw,file=boot.bin
 
 ## License
@@ -80,7 +80,7 @@ MIT
 
 `)
 
-var tomlTemplate = []byte(`# qh configuration file
+var tomlTemplate = []byte(`# fz configuration file
 
 # Copyright (c) 2026 ForgeZero
 
@@ -123,11 +123,11 @@ asm = ["-felf64"]
 cc = ["-O2"]
 ld = ["-T", "linker.ld"]
 
-# Path to .qhignore file (default: .qhignore)
-ignore_file = ".qhignore"
+# Path to .fzignore file (default: .fzignore)
+ignore_file = ".fzignore"
 `)
 
-var ignoreTemplate = []byte(`# qh ignore file
+var ignoreTemplate = []byte(`# fz ignore file
 # Copyright (c) 2026 ForgeZero
 
 # Ignore object files
@@ -146,11 +146,11 @@ test_*
 *.bak
 
 # Ignore hidden directories
-.qh_objs/
-.qh_cache/
+.fz_objs/
+.fz_cache/
 `)
 
-var configureTemplate = []byte(`# Quench configure script
+var configureTemplate = []byte(`# ForgeZero configure script
 # This file can be used to adjust config dynamically at build time.
 
 # Example:
@@ -160,11 +160,11 @@ var configureTemplate = []byte(`# Quench configure script
 `)
 
 func Run() error {
-	if _, err := os.Stat(".qh.toml"); err == nil {
-		return errors.New(".qh.toml already exists (not overwritten)")
+	if _, err := os.Stat(".fz.toml"); err == nil {
+		return errors.New(".fz.toml already exists (not overwritten)")
 	}
-	if _, err := os.Stat(".qhignore"); err == nil {
-		return errors.New(".qhignore already exists (not overwritten)")
+	if _, err := os.Stat(".fzignore"); err == nil {
+		return errors.New(".fzignore already exists (not overwritten)")
 	}
 	if _, err := os.Stat("configure.fz"); err == nil {
 		return errors.New("configure.fz already exists (not overwritten)")
@@ -174,10 +174,10 @@ func Run() error {
 			return err
 		}
 	}
-	if err := utils.SecureWriteFile(".qh.toml", tomlTemplate); err != nil {
+	if err := utils.SecureWriteFile(".fz.toml", tomlTemplate); err != nil {
 		return err
 	}
-	if err := utils.SecureWriteFile(".qhignore", ignoreTemplate); err != nil {
+	if err := utils.SecureWriteFile(".fzignore", ignoreTemplate); err != nil {
 		return err
 	}
 	if err := utils.SecureWriteFile("configure.fz", configureTemplate); err != nil {

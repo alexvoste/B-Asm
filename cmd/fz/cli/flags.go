@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,12 +37,12 @@ func SetupFlags() *Flags {
 	flag.BoolVar(&f.ShowHelp, "help", false, "")
 	flag.BoolVar(&f.ShowMan, "man", false, "")
 	flag.StringVar(&f.Format, "format", "elf64", "")
-	flag.BoolVar(&f.InitMode, "init", false, "initialize project: create .qh.yaml and .qhignore")
+	flag.BoolVar(&f.InitMode, "init", false, "initialize project: create .fz.yaml and .fzignore")
 	flag.StringVar(&f.LdScript, "T", "", "linker script file (passed to ld via -T)")
 	flag.StringVar(&f.TextAddr, "Ttext", "", "set text segment address (passed to ld)")
 	flag.BoolVar(&f.ShellMode, "shell", false, "run interactive shell")
 	flag.IntVar(&f.Jobs, "j", 0, "number of parallel jobs (0 = auto = CPU cores)")
-	flag.BoolVar(&f.UpdateMode, "update", false, "update qh to the latest version")
+	flag.BoolVar(&f.UpdateMode, "update", false, "update fz to the latest version")
 	flag.BoolVar(&f.ContributeMode, "contribute", false, "generate CONTRIBUTING_USER.md and run contribute guidance")
 	flag.StringVar(&f.BuildType, "type", "executable", "build type: executable (default) or static")
 	flag.BoolVar(&f.LibMode, "lib", false, "build static library (archive)")
@@ -72,14 +72,14 @@ func SetupFlags() *Flags {
 	flag.BoolVar(&f.NoCache, "no-cache", false, "disable incremental cache")
 	flag.BoolVar(&f.NoSymbolCheck, "no-symbol-check", false, "skip duplicate symbol pre-check")
 	flag.BoolVar(&f.VerifySignatures, "verify-signatures", false, "verify package and config signatures before use")
-	flag.StringVar(&f.ConfigPath, "config", "", "config file (default: .qh.toml, .qh.yaml, qh.toml, qh.yaml, .qh.yml, qh.yml)")
+	flag.StringVar(&f.ConfigPath, "config", "", "config file (default: .fz.toml, .fz.yaml, fz.toml, fz.yaml, .fz.yml, fz.yml)")
 	flag.StringVar(&f.ConfigFZPPath, "config-fzp", "", "FZP preprocessor config file")
 	flag.Func("set", "override a config value (repeatable, e.g. --set output=app)", func(value string) error {
 		f.SetOverrides = append(f.SetOverrides, value)
 		return nil
 	})
 	flag.StringVar(&f.PluginPath, "plugin", "", "shared object plugin file to load before build")
-	flag.BoolVar(&f.Clean, "clean", false, "remove all build artifacts (.qh_objs, .qh_cache, binaries)")
+	flag.BoolVar(&f.Clean, "clean", false, "remove all build artifacts (.fz_objs, .fz_cache, binaries)")
 	flag.StringVar(&f.GloriaPath, "gloria", "", "path to .glo file")
 	flag.BoolVar(&f.AutoBuild, "autoBuild", false, "auto build project")
 	flag.BoolVar(&f.ParseMakefile, "parse-makefile", false, "enable Makefile parsing for source discovery (opt-in)")
@@ -89,12 +89,12 @@ func SetupFlags() *Flags {
 	flag.StringVar(&f.ProfileFlag, "p", "balanced", "build profile (shorthand)")
 	flag.BoolVar(&f.AlexMode, "alex", false, "run full test scanner projects for contribution")
 	flag.BoolVar(&f.PyzeroFlag, "pyzero", false, "experimental: bump python format file to binaries")
-	flag.StringVar(&f.OldReverseFile, "old-reverse", "", "generate .qh.yaml from legacy build files")
+	flag.StringVar(&f.OldReverseFile, "old-reverse", "", "generate .fz.yaml from legacy build files")
 	flag.Var(&f.ISO, "iso", "package the build into a bootable ISO (optional dir: -iso=./isoroot)")
 	flag.StringVar(&f.IsoOut, "iso-out", "", "output path for the generated ISO image")
 	flag.BoolVar(&f.IsoHybrid, "iso-hybrid", false, "make the generated ISO hybrid (BIOS+USB bootable)")
 	flag.BoolVar(&f.RollBackFlag, "rollback", false, "rollback version to old or stable(down to 1-2)")
-	flag.StringVar(&f.RollBackToFlag, "rollback-to", "", "rollback-to needs version(e.g qh --rollback-to 5.1.0)")
+	flag.StringVar(&f.RollBackToFlag, "rollback-to", "", "rollback-to needs version(e.g fz --rollback-to 5.1.0)")
 
 	flag.Usage = func() {
 		_, _ = os.Stderr.WriteString("Run " + os.Args[0] + " -help for full usage.\n")
@@ -170,6 +170,6 @@ type Flags struct {
 	ParseMakefile    bool
 	ConfigOnly       bool
 
-	RollBackFlag   bool   // qh --rollback
-	RollBackToFlag string // qh --rollback-to <version>
+	RollBackFlag   bool   // fz --rollback
+	RollBackToFlag string // fz --rollback-to <version>
 }

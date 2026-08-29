@@ -1,4 +1,4 @@
-## 🦎 QUENCH
+## 🦎 FORGEZERO
 
 Manual installer for users across different systems
 
@@ -23,32 +23,32 @@ yay -S forgezero-git # no stable version
 ## 🛠 To build from source manually:
 
 ```bash
-git clone https://github.com/qecko-labs/Quench
-cd Quench
-bash build.sh && sudo mv qh /usr/local/bin # or /usr/bin/
+git clone https://github.com/forgezero-cli/ForgeZero
+cd ForgeZero
+bash build.sh && sudo mv fz /usr/local/bin # or /usr/bin/
 ```
 
 ## ✨ To build it yourself use the command:
 
 ```bash
-go build -ldflags="-X github.com/forgezero-cli/ForgeZero/cmd/fz/cli.BuildDate=$(date +%Y-%m-%d) -X github.com/forgezero-cli/ForgeZero/cmd/fz/cli.VersionCore=v6.0.0" -o qh cmd/fz/main.go
+go build -ldflags="-X github.com/forgezero-cli/ForgeZero/cmd/fz/cli.BuildDate=$(date +%Y-%m-%d) -X github.com/forgezero-cli/ForgeZero/cmd/fz/cli.VersionCore=v6.0.0" -o fz cmd/fz/main.go
 ```
 
 _Also clone the repo just like in the option above._
 
-## 📒 Additional installation option for Quench
+## 📒 Additional installation option for ForgeZero
 
 You may use the provided installer script, which was specifically written to eliminate the routine effort of compiling from source:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/qecko-labs/Quench/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/forgezero-cli/ForgeZero/main/install.sh | sh
 ```
 
 > [!IMPORTANT]
 > Note: Ensure that the `curl` utility is installed on your system prior to running this command.
 
-📥 If you encounter any errors during installation (which should not occur under normal circumstances), please report them to us via Issues: https://github.com/qecko-labs/Quench/issues
+📥 If you encounter any errors during installation (which should not occur under normal circumstances), please report them to us via Issues: https://github.com/forgezero-cli/ForgeZero/issues
 
-_If you are a contributor and intend to work with Quench, please ensure that the following utilities are installed on your system for successful test execution (e.g., go test -v ./... and related commands): gcc, clang, nasm, fasm, and zig._
+_If you are a contributor and intend to work with ForgeZero, please ensure that the following utilities are installed on your system for successful test execution (e.g., go test -v ./... and related commands): gcc, clang, nasm, fasm, and zig._
 
 In the event that these utilities are not available, some tests may fail. If your goal is to test only a specific added module or component, you may limit testing to that particular package rather than running the full test suite.

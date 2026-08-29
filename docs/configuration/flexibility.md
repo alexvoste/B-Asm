@@ -1,6 +1,6 @@
 # Configuration flexibility
 
-Quench does not assume that every project fits the same build shape. A build system that is only good at the simplest case quickly becomes painful in real engineering environments.
+ForgeZero does not assume that every project fits the same build shape. A build system that is only good at the simplest case quickly becomes painful in real engineering environments.
 
 ## The flexibility model
 
@@ -16,4 +16,4 @@ The configuration system supports:
 
 ## Why this is important
 
-Real projects often need more than “compile these files and link them.” They need environment-specific settings, platform-specific source selection, bootstrapping steps, and reproducible build behavior. Quench keeps these capabilities in the config layer so they remain visible and maintainable.
+Real projects often need more than “compile these files and link them.” They need environment-specific settings, platform-specific source selection, bootstrapping steps, and reproducible build behavior. ForgeZero keeps these capabilities in the config layer so they remain visible and maintainable.

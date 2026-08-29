@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -600,6 +600,16 @@ func TestParseOperandInvalid(t *testing.T) {
 	_, err := parseOperand([]byte("[rax+*]"))
 	if err == nil {
 		t.Error("invalid operand should fail")
+	}
+}
+
+var parseOperandBenchmarkSink operand
+
+func BenchmarkParseOperandMemory(b *testing.B) {
+	input := []byte("[rax+rbx*2+16]")
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		parseOperandBenchmarkSink, _ = parseOperand(input)
 	}
 }
 

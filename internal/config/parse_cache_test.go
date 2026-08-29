@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -46,6 +46,37 @@ cc = ["-O2"]
 	}
 	if cached.Output != "mybin" {
 		t.Fatal("cache should return cloned config so modifications do not leak")
+	}
+}
+
+func TestCloneConfigDeepCopiesBuildSettings(t *testing.T) {
+	in := &Config{
+		Preprocess: PreprocessConfig{
+			Inputs:  []string{"in.c"},
+			Outputs: []string{"out.i"},
+			Defines: map[string]string{"MODE": "debug"},
+		},
+		DepBuild: DepBuildConfig{
+			Environment: map[string]string{"CC": "gcc"},
+			Steps:       []BuildStep{{With: map[string]string{"ARCH": "x86"}, Inputs: []string{"in.c"}, Outputs: []string{"out.o"}}},
+			StepSets:    []StepSet{{BuildStep: BuildStep{With: map[string]string{"MODE": "fast"}}}},
+		},
+		AutoBuild: AutoBuildConfig{
+			BuildOrder:         []string{"first"},
+			DefaultEnvironment: map[string]string{"PATH": "/bin"},
+		},
+	}
+	out := cloneConfig(in)
+	out.Preprocess.Inputs[0] = "changed.c"
+	out.Preprocess.Defines["MODE"] = "release"
+	out.DepBuild.Environment["CC"] = "clang"
+	out.DepBuild.Steps[0].With["ARCH"] = "arm64"
+	out.DepBuild.StepSets[0].With["MODE"] = "safe"
+	out.AutoBuild.BuildOrder[0] = "changed"
+	out.AutoBuild.DefaultEnvironment["PATH"] = "/usr/bin"
+
+	if in.Preprocess.Inputs[0] != "in.c" || in.Preprocess.Defines["MODE"] != "debug" || in.DepBuild.Environment["CC"] != "gcc" || in.DepBuild.Steps[0].With["ARCH"] != "x86" || in.DepBuild.StepSets[0].With["MODE"] != "fast" || in.AutoBuild.BuildOrder[0] != "first" || in.AutoBuild.DefaultEnvironment["PATH"] != "/bin" {
+		t.Fatal("clone shares nested config data")
 	}
 }
 

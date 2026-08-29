@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,9 @@ type DepBuilder struct {
 }
 
 func NewDepBuilder(ctx context.Context, depPath, depName string, depCfg *config.Config, globalAutoBuild *config.AutoBuildConfig, verbose bool) *DepBuilder {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	return &DepBuilder{
 		ctx:             ctx,
 		depPath:         depPath,

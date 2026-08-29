@@ -8,7 +8,7 @@ The repository includes a simple installation flow for local use.
 - Or build the CLI directly with Go:
 
 ```bash
-go build -o qh ./cmd/qh
+go build -o fz ./cmd/fz
 ```
 
 ## Notes

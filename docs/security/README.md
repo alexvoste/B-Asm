@@ -1,6 +1,6 @@
 # Security and integrity
 
-Security is treated as a first-class concern in Quench rather than as an afterthought. The project includes mechanisms for auditing, SBOM generation, path validation, and stricter build isolation.
+Security is treated as a first-class concern in ForgeZero rather than as an afterthought. The project includes mechanisms for auditing, SBOM generation, path validation, and stricter build isolation.
 
 ## Main security ideas
 
@@ -11,4 +11,4 @@ Security is treated as a first-class concern in Quench rather than as an afterth
 
 ## Why this matters
 
-A build system that handles source code and external toolchains must be careful about path traversal, unexpected file writes, and ambiguity in the build graph. Quench addresses these concerns in a practical way instead of pretending they will not arise in real projects.
+A build system that handles source code and external toolchains must be careful about path traversal, unexpected file writes, and ambiguity in the build graph. ForgeZero addresses these concerns in a practical way instead of pretending they will not arise in real projects.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ func Build(ctx context.Context, buildCtx BuildContext, cfg *config.Config) Build
 					candidates = append(candidates, filepath.Join(dirs[0], cfg.IgnoreFile))
 				}
 				candidates = append(candidates, cfg.IgnoreFile)
-				if cfg.IgnoreFile == ".qhignore" {
+				if cfg.IgnoreFile == ".fzignore" {
 					candidates = append(candidates, filepath.Join(dirs[0], ".fzignore"))
 					candidates = append(candidates, ".fzignore")
 				}

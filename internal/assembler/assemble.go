@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -242,6 +242,9 @@ func assembleWithNasm(ctx context.Context, src, obj string, debug, verbose bool,
 	if len(AsmFlags) > 0 {
 		args = append(args, AsmFlags...)
 	}
+	if cfg := utils.ConfigFromContext(ctx); cfg != nil && len(cfg.Flags.Asm) > 0 {
+		args = append(args, cfg.Flags.Asm...)
+	}
 	args = append(args, src)
 
 	if verbose {
@@ -274,6 +277,9 @@ func assembleWithFasm(ctx context.Context, src, obj string, verbose bool) error 
 }
 
 func Assemble(ctx context.Context, src, obj string, debug, verbose bool, mode string) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	initAssemblerFlags()
 
 	target := Target
@@ -376,6 +382,11 @@ func compileC(ctx context.Context, src, obj string, verbose bool, compiler strin
 }
 
 func compileCWithTarget(ctx context.Context, src, obj string, verbose bool, compiler string, target string) error {
+	if cfg := utils.ConfigFromContext(ctx); cfg != nil {
+		if path := strings.TrimSpace(cfg.Compiler.Path); path != "" {
+			compiler = path
+		}
+	}
 	compilerParts := strings.Fields(compiler)
 	compilerBin := compilerParts[0]
 
@@ -411,6 +422,9 @@ func compileCWithTarget(ctx context.Context, src, obj string, verbose bool, comp
 	}
 	if len(CcFLagsParsed) > 0 {
 		args = append(args, CcFLagsParsed...)
+	}
+	if cfg := utils.ConfigFromContext(ctx); cfg != nil && len(cfg.Flags.Cc) > 0 {
+		args = append(args, cfg.Flags.Cc...)
 	}
 
 	if len(PCHIncludeArgs) > 0 {

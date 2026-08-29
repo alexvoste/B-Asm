@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -288,10 +288,6 @@ func parseOperand(tok []byte) (operand, error) {
 			if len(part) == 0 {
 				continue
 			}
-			if num, err := parseNumber(part); err == nil {
-				disp += sign * int64(num)
-				continue
-			}
 			if code, _, ok := parseRegister(part); ok {
 				if base == 255 {
 					base = code
@@ -318,6 +314,10 @@ func parseOperand(tok []byte) (operand, error) {
 				}
 				index = code
 				scale = byte(scaleVal)
+				continue
+			}
+			if num, err := parseNumber(part); err == nil {
+				disp += sign * int64(num)
 				continue
 			}
 			return operand{}, errors.New("unsupported memory operand format")

@@ -1,10 +1,10 @@
-Quench
+ForgeZero
 
-DOCUMENTATION: https://qecko-labs.github.io/quench-docs/
+DOCUMENTATION: https://forgezero-cli.github.io/forgezero-docs/
 
 =========
 
-Quench is a zero-overhead build tool for assembly, C, C++, Objective-C,
+ForgeZero is a zero-overhead build tool for assembly, C, C++, Objective-C,
 and Gloria. It wraps NASM, GAS, FASM, GCC, Clang, Zig, and LD behind a
 single command-line interface, and provides fast, allocation-free builds
 without Makefiles or configuration.
@@ -22,10 +22,10 @@ If you want to control the box — welcome.
 
 Quick Start
 
-- Report a bug: https://github.com/qecko-labs/Quench/issues
-- Get the latest release: https://github.com/qecko-labs/Quench
-- Build Quench: See INSTALL
-- Build your project with qh: See QUICKSTART
+- Report a bug: https://github.com/forgezero-cli/ForgeZero/issues
+- Get the latest release: https://github.com/forgezero-cli/ForgeZero
+- Build ForgeZero: See INSTALL
+- Build your project with fz: See QUICKSTART
 
 Essential Documentation
 
@@ -42,7 +42,7 @@ Who Are You?
 
 Find your role below:
 
-- New User - Building a project with qh for the first time
+- New User - Building a project with fz for the first time
 - Assembly Developer - Writing NASM, GAS, or FASM sources
 - C / C++ / Objective-C Developer - Building with GCC, Clang, or Zig
 - Gloria Developer - Writing and compiling Gloria sources
@@ -132,8 +132,8 @@ Full benchmark methodology and reproduction steps: PERFORMANCE
 
 Communication and Support
 
-- Issues: https://github.com/qecko-labs/Quench/issues
-- Source: https://github.com/qecko-labs/Quench
+- Issues: https://github.com/forgezero-cli/ForgeZero/issues
+- Source: https://github.com/forgezero-cli/ForgeZero
 - Author: alexvoste <https://github.com/alexvoste>
 - License: GPLv3 - see LICENSE
 

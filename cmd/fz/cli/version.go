@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 qecko-labs
+ * Copyright (c) 2026 forgezero-cli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	VersionCodename = "Quench"
+	VersionCodename = "ForgeZero"
 )
 
 var VersionCore = "unknown"
@@ -35,7 +35,7 @@ var BuildDate = "unknown"
 func VersionText() string {
 	var b strings.Builder
 	b.Grow(180)
-	b.WriteString("Quench 2.0 (core ")
+	b.WriteString("ForgeZero 2.0 (core ")
 	b.WriteString(VersionCore)
 	b.WriteString(") [")
 	b.WriteString(VersionCodename)
@@ -45,7 +45,7 @@ func VersionText() string {
 	b.WriteString(runtime.GOOS)
 	b.WriteByte('/')
 	b.WriteString(runtime.GOARCH)
-	b.WriteString(") · GPLv3 · (c) Quench-cli")
+	b.WriteString(") · GPLv3 · (c) ForgeZero-cli")
 	return b.String()
 }
 func OutputVersion() {

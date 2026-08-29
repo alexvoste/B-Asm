@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,6 +35,14 @@ func TestDedupObjectsEmpty(t *testing.T) {
 	}
 }
 
+func TestDedupObjectsSingle(t *testing.T) {
+	input := []string{"a.o"}
+	got := dedupObjects(input)
+	if len(got) != 1 || got[0] != input[0] {
+		t.Fatalf("unexpected dedup result %v", got)
+	}
+}
+
 func TestDedupObjectsUnique(t *testing.T) {
 	got := dedupObjects([]string{"a.o", "b.o", "a.o"})
 	if len(got) != 2 {
@@ -42,6 +50,24 @@ func TestDedupObjectsUnique(t *testing.T) {
 	}
 	if got[0] != "a.o" || got[1] != "b.o" {
 		t.Fatalf("unexpected dedup result %v", got)
+	}
+}
+
+var dedupBenchmarkSink []string
+
+func BenchmarkDedupObjectsSingle(b *testing.B) {
+	input := []string{"a.o"}
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		dedupBenchmarkSink = dedupObjects(input)
+	}
+}
+
+func BenchmarkDedupObjectsRepeated(b *testing.B) {
+	input := []string{"a.o", "b.o", "a.o", "c.o"}
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		dedupBenchmarkSink = dedupObjects(input)
 	}
 }
 

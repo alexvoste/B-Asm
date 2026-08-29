@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,11 +40,11 @@ func TestRunCreatesFiles(t *testing.T) {
 	if err := Run(); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := os.Stat(".qh.toml"); err != nil {
-		t.Error(".qh.toml not created")
+	if _, err := os.Stat(".fz.toml"); err != nil {
+		t.Error(".fz.toml not created")
 	}
-	if _, err := os.Stat(".qhignore"); err != nil {
-		t.Error(".qhignore not created")
+	if _, err := os.Stat(".fzignore"); err != nil {
+		t.Error(".fzignore not created")
 	}
 	if _, err := os.Stat("README.md"); err != nil {
 		t.Error("README.md not created")
@@ -70,7 +70,7 @@ func TestRunFailsIfFilesExist(t *testing.T) {
 		}
 	})
 
-	f, err := os.Create(".qh.toml")
+	f, err := os.Create(".fz.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,6 +78,6 @@ func TestRunFailsIfFilesExist(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := Run(); err == nil {
-		t.Error("expected error because .qh.toml exists")
+		t.Error("expected error because .fz.toml exists")
 	}
 }

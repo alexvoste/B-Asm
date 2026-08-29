@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2026 qecko-labs
+ *   Copyright (c) 2026 forgezero-cli
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ helper_func:
 	if err != nil {
 		t.Fatal(err)
 	}
-	objDir := filepath.Join(filepath.Dir(outBin), ".qh_objs")
+	objDir := filepath.Join(filepath.Dir(outBin), ".fz_objs")
 	entries, err := os.ReadDir(objDir)
 	if err != nil {
 		t.Fatal(err)
@@ -149,8 +149,8 @@ helper_func:
 
 func TestCleanDir(t *testing.T) {
 	dir := t.TempDir()
-	objDir := filepath.Join(dir, ".qh_objs")
-	cacheDir := filepath.Join(dir, ".qh_cache")
+	objDir := filepath.Join(dir, ".fz_objs")
+	cacheDir := filepath.Join(dir, ".fz_cache")
 	if err := os.MkdirAll(objDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(%s) failed: %v", objDir, err)
 	}
@@ -296,7 +296,7 @@ func TestRunPreprocessGeneratesHeaderFromTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := &config.Config{Output: "release", Mode: "raw"}
-	outputRoot := filepath.Join(dir, ".qh_objs", "include")
+	outputRoot := filepath.Join(dir, ".fz_objs", "include")
 	if err := runPreprocessStep(cfg, []string{dir}, outputRoot, false); err != nil {
 		t.Fatalf("runPreprocessStep() error = %v", err)
 	}
