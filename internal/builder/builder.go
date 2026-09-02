@@ -1358,7 +1358,7 @@ func runPreprocessStep(cfg *config.Config, dirs []string, outputRoot string, ver
 			if verbose {
 				_, _ = os.Stdout.WriteString("Generating preprocessed output " + outputPath + " from " + inputPath + "\n")
 			}
-			proc := fzp.NewProcessor(fzp.Options{RootDir: filepath.Dir(inputPath), Macros: cfg.Preprocess.Defines})
+			proc := fzp.NewProcessor(fzp.Options{RootDir: filepath.Dir(inputPath), Macros: cfg.Preprocess.Defines, PreserveDefines: true})
 			processed, err := proc.Process(inputPath, fzp.Options{RootDir: filepath.Dir(inputPath)})
 			if err != nil {
 				return err
