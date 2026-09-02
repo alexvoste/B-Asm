@@ -24,6 +24,7 @@ import (
 	"encoding/hex"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,9 +34,10 @@ import (
 )
 
 type Options struct {
-	RootDir     string
-	AllowedDirs []string
-	Macros      map[string]string
+	RootDir         string
+	AllowedDirs     []string
+	Macros          map[string]string
+	PreserveDefines bool
 }
 
 type Definition struct {
@@ -50,12 +52,13 @@ type condState struct {
 }
 
 type Processor struct {
-	rootDir      string
-	allowedDirs  map[string]struct{}
-	macros       map[string]string
-	cache        map[string]string
-	includeStack []string
-	condStack    []condState
+	rootDir         string
+	allowedDirs     map[string]struct{}
+	macros          map[string]string
+	cache           map[string]string
+	includeStack    []string
+	condStack       []condState
+	preserveDefines bool
 }
 
 func NewProcessor(opts Options) *Processor {
@@ -75,7 +78,15 @@ func NewProcessor(opts Options) *Processor {
 	for k, v := range opts.Macros {
 		macros[k] = v
 	}
-	return &Processor{rootDir: root, allowedDirs: allowed, macros: macros, cache: map[string]string{}}
+	switch runtime.GOOS {
+	case "linux":
+		macros["__linux__"] = "1"
+	case "windows":
+		macros["_WIN32"] = "1"
+	case "darwin":
+		macros["__APPLE__"] = "1"
+	}
+	return &Processor{rootDir: root, allowedDirs: allowed, macros: macros, cache: map[string]string{}, preserveDefines: opts.PreserveDefines}
 }
 
 func (p *Processor) Process(path string, opts Options) (string, error) {
@@ -186,6 +197,9 @@ func (p *Processor) handleDirective(line, currentPath string) (string, bool, err
 			name := parts[1]
 			value := strings.TrimSpace(strings.TrimPrefix(line, "#define "+name))
 			p.macros[name] = p.expandMacros(value)
+			if p.preserveDefines {
+				return line, true, nil
+			}
 		}
 		return "", false, nil
 	}
@@ -196,6 +210,9 @@ func (p *Processor) handleDirective(line, currentPath string) (string, bool, err
 		parts := strings.Fields(line)
 		if len(parts) >= 2 {
 			delete(p.macros, parts[1])
+			if p.preserveDefines {
+				return line, true, nil
+			}
 		}
 		return "", false, nil
 	}
@@ -205,6 +222,9 @@ func (p *Processor) handleDirective(line, currentPath string) (string, bool, err
 		}
 		parts := strings.Fields(line)
 		if len(parts) >= 2 {
+			if strings.HasPrefix(parts[1], "<") && strings.HasSuffix(parts[1], ">") {
+				return line, true, nil
+			}
 			includePath := strings.Trim(parts[1], "\"")
 			includePath = strings.Trim(includePath, "<>")
 			if includePath == "" {
