@@ -1,5 +1,15 @@
 # CHANGELOG ForgeZero
 
+## [UNRELEASED] - 2026-09-02
+
+### Fixed
+
+- **Preserve defines in generated headers.**
+  ([234642d](https://github.com/forgezero-cli/ForgeZero/commit/234642d))
+
+- **Preserve platform-aware FZP directives**
+  ([133169a](https://github.com/forgezero-cli/ForgeZero/commit/133169a))
+
 ## [UNRELEASED] — 2026-08-23
 
 ### Added
@@ -949,4 +959,6 @@ efa2182 perf(builder): replace RWMutex with spinlock in action_cache
 3fc3dbc fix(builder): deduplicate auto-discovered sources
 09156c6 perf(linker): optimize small-file copy path
 c7ff62b test(builder): add source discovery deduplication coverage
+234642d Preserve defines in generated headers
+133169a Preserve platform-aware FZP directives
 ```
